@@ -30,7 +30,7 @@ class NetworkInterfaceTest extends TestCase
         $connector = new SmartIdConnectorSpy();
         $this->stubConnectorSpyWithResponses($connector);
         $this->buildAndMakeAuthenticationRequest($connector);
-        self::assertEquals($this->NETWORK_INTERFACE, $connector->authenticationSessionRequestUsed->toArray()['networkInterface']);
+        self::assertEquals($this->NETWORK_INTERFACE, $connector->sessionRequestUsed->toArray()['networkInterface']);
     }
 
     /**
@@ -49,11 +49,11 @@ class NetworkInterfaceTest extends TestCase
         $authSessionResponse = new AuthenticationSessionResponse(array());
         $authSessionResponse->setSessionID("12345");
         $sessionStatus = new SessionStatus();
-        $sessionStatus->setResult(new SessionResult(array("endResult"=>"OK")));
+        $sessionStatus->setResult(new SessionResult(array("endResult" => "OK")));
         $sessionStatus->setSignature(new SessionSignature());
         $sessionStatus->setCert(new SessionCertificate());
         $sessionStatus->setInteractionFlowUsed("displayTextAndPin");
-        $smartIdConnectorSpy->authenticationSessionResponseToRespond = $authSessionResponse;
+        $smartIdConnectorSpy->sessionResponseToRespond = $authSessionResponse;
         $smartIdConnectorSpy->sessionStatusToRespond = $sessionStatus;
     }
 
@@ -62,11 +62,11 @@ class NetworkInterfaceTest extends TestCase
         $sessionStatusPoller = new SessionStatusPoller($connector);
         $builder = new AuthenticationRequestBuilder($connector, $sessionStatusPoller);
         $builder
-            ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-            ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-            ->withDocumentNumber( DummyData::VALID_DOCUMENT_NUMBER )
-            ->withCertificateLevel( DummyData::CERTIFICATE_LEVEL )
-            ->withNetworkInterface( $this->NETWORK_INTERFACE )
+            ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+            ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+            ->withDocumentNumber(DummyData::VALID_DOCUMENT_NUMBER)
+            ->withCertificateLevel(DummyData::CERTIFICATE_LEVEL)
+            ->withNetworkInterface($this->NETWORK_INTERFACE)
             ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Hellou")))
             ->withSignableData(new SignableData("TERE"))
             ->authenticate();

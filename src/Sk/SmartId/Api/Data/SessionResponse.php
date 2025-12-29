@@ -24,9 +24,10 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId\Api\Data;
 
-class AuthenticationSessionResponse extends PropertyMapper
+class SessionResponse extends PropertyMapper
 {
   /**
    * @var string
@@ -44,7 +45,7 @@ class AuthenticationSessionResponse extends PropertyMapper
   /**
    * @param string $sessionID
    */
-  public function setSessionID(string $sessionID )
+  public function setSessionID(string $sessionID)
   {
     $this->sessionID = $sessionID;
   }

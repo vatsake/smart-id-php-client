@@ -1,3 +1,57 @@
+## Signing functionality
+
+```PHP
+
+$this->client = new Client();
+$this->client
+    ->setRelyingPartyUUID( '00000000-0000-0000-0000-000000000000' ) // In production replace with your UUID
+    ->setRelyingPartyName( 'DEMO' ) // In production replace with your name
+    ->setHostUrl( 'https://sid.demo.sk.ee/smart-id-rp/v2/' ) // In production replace with production service URL
+        // in production replace with correct server SSL key
+    ->setPublicSslKeys("sha256//Ps1Im3KeB0Q4AlR+/J9KFd/MOznaARdwo4gURPCLaVA=");
+
+$semanticsIdentifier = SemanticsIdentifier::builder()
+    ->withSemanticsIdentifierType('PNO')
+    ->withCountryCode('LT')
+    ->withIdentifier('30303039914')
+    ->build();
+
+$resp = $client->signature()->createCertificateChoice()
+    ->withSemanticsIdentifier($semanticsIdentifier)
+    ->withCertificateLevel('QUALIFIED')
+    ->chooseCertificate();
+
+$data = new SignableData('12312312312312');
+$data->setHashType('SHA256');
+
+$resp = $client->signature()->createSignature()
+    ->withDocumentNumber($resp->getDocumentNumber())
+    ->withCertificateLevel('QUALIFIED')
+    ->withSignableData($data)
+    ->withAllowedInteractionsOrder([
+        Interaction::ofTypeVerificationCodeChoice('Kood')
+    ])
+    ->sign();
+
+// Or without cert choice
+$resp = $client->signature()->createSignature()
+    ->withSemanticsIdentifier($semanticsIdentifier)
+    ->withCertificateLevel('QUALIFIED')
+    ->withSignableData($data)
+    ->withAllowedInteractionsOrder([
+        Interaction::ofTypeVerificationCodeChoice('Kood')
+    ])
+    ->sign();
+```
+
+## Breaking changes
+
+* AuthenticationResponseValidator now requires FULL path to folder (removed the trusted_certificates suffix)
+* Renamed AuthenticationSessionRequest -> SessionRequest
+* Renamed AuthenticationSessionResponse -> SessionResponse
+
+# ORIGINAL DOCUMENTATION
+
 [![Tests](https://github.com/SK-EID/smart-id-php-client/actions/workflows/tests.yaml/badge.svg)](https://github.com/SK-EID/smart-id-php-client/actions/workflows/tests.yaml)
 [![Latest Version](https://img.shields.io/packagist/v/sk-id-solutions/smart-id-php-client?label=version)](https://packagist.org/packages/sk-id-solutions/smart-id-php-client/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)

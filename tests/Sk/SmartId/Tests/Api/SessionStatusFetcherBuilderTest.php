@@ -24,6 +24,7 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId\Tests\Api;
 
 use Sk\SmartId\Api\Data\AuthenticationSessionResponse;
@@ -51,12 +52,12 @@ class SessionStatusFetcherBuilderTest extends Setup
    */
   private $builder;
 
-  protected function setUp() : void
+  protected function setUp(): void
   {
     $this->connector = new SmartIdConnectorSpy();
-    $this->connector->authenticationSessionResponseToRespond = $this->createDummyAuthenticationSessionResponse();
+    $this->connector->sessionResponseToRespond = $this->createDummyAuthenticationSessionResponse();
     $this->connector->sessionStatusToRespond = $this->createDummySessionStatusResponse();
-    $this->builder = new SessionStatusFetcherBuilder( $this->connector );
+    $this->builder = new SessionStatusFetcherBuilder($this->connector);
   }
 
   /**
@@ -65,12 +66,12 @@ class SessionStatusFetcherBuilderTest extends Setup
   public function getAuthenticationResponse()
   {
     $sessionId = '97f5058e-e308-4c83-ac14-7712b0eb9d86';
-    $dataToSign = new SignableData( DummyData::SIGNABLE_TEXT );
-    $authenticationResponse = $this->builder->withSignableData( $dataToSign )
-        ->withSessionId( $sessionId )
-        ->getAuthenticationResponse();
+    $dataToSign = new SignableData(DummyData::SIGNABLE_TEXT);
+    $authenticationResponse = $this->builder->withSignableData($dataToSign)
+      ->withSessionId($sessionId)
+      ->getAuthenticationResponse();
     $this->assertCorrectSessionRequestMade();
-    $this->assertAuthenticationResponseCorrect( $authenticationResponse );
+    $this->assertAuthenticationResponseCorrect($authenticationResponse);
   }
 
   /**
@@ -79,13 +80,13 @@ class SessionStatusFetcherBuilderTest extends Setup
   public function getAuthenticationResponse_withNetworkInterfaceInPlace()
   {
     $sessionId = '97f5058e-e308-4c83-ac14-7712b0eb9d86';
-    $dataToSign = new SignableData( DummyData::SIGNABLE_TEXT );
-    $authenticationResponse = $this->builder->withSignableData( $dataToSign )
-        ->withSessionId( $sessionId )
-        ->withNetworkInterface( 'eth0' )
-        ->getAuthenticationResponse();
+    $dataToSign = new SignableData(DummyData::SIGNABLE_TEXT);
+    $authenticationResponse = $this->builder->withSignableData($dataToSign)
+      ->withSessionId($sessionId)
+      ->withNetworkInterface('eth0')
+      ->getAuthenticationResponse();
     $this->assertCorrectSessionRequestMade();
-    $this->assertAuthenticationResponseCorrect( $authenticationResponse );
+    $this->assertAuthenticationResponseCorrect($authenticationResponse);
   }
 
   /**
@@ -96,7 +97,7 @@ class SessionStatusFetcherBuilderTest extends Setup
     $sessionStatusFetcher = $this->builder->build();
     $sessionStatus = $sessionStatusFetcher->getSessionStatus();
 
-    $this->assertFalse( $sessionStatus->isRunningState() );
+    $this->assertFalse($sessionStatus->isRunningState());
   }
 
   /**
@@ -104,10 +105,10 @@ class SessionStatusFetcherBuilderTest extends Setup
    */
   public function getSessionStatus_withNetworkInterfaceInPlace()
   {
-    $sessionStatusFetcher = $this->builder->withNetworkInterface( 'eth0' )->build();
+    $sessionStatusFetcher = $this->builder->withNetworkInterface('eth0')->build();
     $sessionStatus = $sessionStatusFetcher->getSessionStatus();
 
-    $this->assertFalse( $sessionStatus->isRunningState() );
+    $this->assertFalse($sessionStatus->isRunningState());
   }
 
   /**
@@ -116,7 +117,7 @@ class SessionStatusFetcherBuilderTest extends Setup
   private function createDummyAuthenticationSessionResponse(): AuthenticationSessionResponse
   {
     $response = new AuthenticationSessionResponse();
-    $response->setSessionID( '97f5058e-e308-4c83-ac14-7712b0eb9d86' );
+    $response->setSessionID('97f5058e-e308-4c83-ac14-7712b0eb9d86');
     return $response;
   }
 
@@ -126,36 +127,36 @@ class SessionStatusFetcherBuilderTest extends Setup
   private function createDummySessionStatusResponse(): SessionStatus
   {
     $signature = new SessionSignature();
-    $signature->setValue( 'c2FtcGxlIHNpZ25hdHVyZQ0K' );
-    $signature->setAlgorithm( 'sha512WithRSAEncryption' );
+    $signature->setValue('c2FtcGxlIHNpZ25hdHVyZQ0K');
+    $signature->setAlgorithm('sha512WithRSAEncryption');
 
     $certificate = new SessionCertificate();
-    $certificate->setCertificateLevel( CertificateLevelCode::QUALIFIED );
-    $certificate->setValue( DummyData::CERTIFICATE );
+    $certificate->setCertificateLevel(CertificateLevelCode::QUALIFIED);
+    $certificate->setValue(DummyData::CERTIFICATE);
 
     $status = new SessionStatus();
-    $status->setState( SessionStatusCode::COMPLETE )
-        ->setResult( DummyData::createSessionEndResult() )
-        ->setSignature( $signature )
-        ->setCert( $certificate );
+    $status->setState(SessionStatusCode::COMPLETE)
+      ->setResult(DummyData::createSessionEndResult())
+      ->setSignature($signature)
+      ->setCert($certificate);
     return $status;
   }
 
   private function assertCorrectSessionRequestMade()
   {
-    $this->assertEquals( '97f5058e-e308-4c83-ac14-7712b0eb9d86', $this->connector->sessionIdUsed );
+    $this->assertEquals('97f5058e-e308-4c83-ac14-7712b0eb9d86', $this->connector->sessionIdUsed);
   }
 
   /**
    * @param SmartIdAuthenticationResponse $authenticationResult
    */
-  private function assertAuthenticationResponseCorrect( SmartIdAuthenticationResponse $authenticationResult )
+  private function assertAuthenticationResponseCorrect(SmartIdAuthenticationResponse $authenticationResult)
   {
-    $this->assertNotNull( $authenticationResult );
-    $this->assertEquals( SessionEndResultCode::OK, $authenticationResult->getEndResult() );
-    $this->assertEquals( 'c2FtcGxlIHNpZ25hdHVyZQ0K', $authenticationResult->getValueInBase64() );
-    $this->assertEquals( 'sha512WithRSAEncryption', $authenticationResult->getAlgorithmName() );
-    $this->assertEquals( DummyData::CERTIFICATE, $authenticationResult->getCertificate() );
-    $this->assertEquals( CertificateLevelCode::QUALIFIED, $authenticationResult->getCertificateLevel() );
+    $this->assertNotNull($authenticationResult);
+    $this->assertEquals(SessionEndResultCode::OK, $authenticationResult->getEndResult());
+    $this->assertEquals('c2FtcGxlIHNpZ25hdHVyZQ0K', $authenticationResult->getValueInBase64());
+    $this->assertEquals('sha512WithRSAEncryption', $authenticationResult->getAlgorithmName());
+    $this->assertEquals(DummyData::CERTIFICATE, $authenticationResult->getCertificate());
+    $this->assertEquals(CertificateLevelCode::QUALIFIED, $authenticationResult->getCertificateLevel());
   }
 }

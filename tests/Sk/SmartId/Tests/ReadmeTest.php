@@ -28,15 +28,15 @@ class ReadmeTest extends TestCase
 {
   private Client $client;
 
-  public function setUp() : void
+  public function setUp(): void
   {
     $this->client = new Client();
     $this->client
-        ->setRelyingPartyUUID( '00000000-0000-0000-0000-000000000000' ) // In production replace with your UUID
-        ->setRelyingPartyName( 'DEMO' ) // In production replace with your name
-        ->setHostUrl( 'https://sid.demo.sk.ee/smart-id-rp/v2/' ) // In production replace with production service URL
-            // in production replace with correct server SSL key
-        ->setPublicSslKeys("sha256//nTL2Ju/1Mt+WAHeejqZHtgPNRu049iUcXOPq0GmRgJg=;sha256//wkdgNtKpKzMtH/zoLkgeScp1Ux4TLm3sUldobVGA/g4=;sha256//Ps1Im3KeB0Q4AlR+/J9KFd/MOznaARdwo4gURPCLaVA=");
+      ->setRelyingPartyUUID('00000000-0000-0000-0000-000000000000') // In production replace with your UUID
+      ->setRelyingPartyName('DEMO') // In production replace with your name
+      ->setHostUrl('https://sid.demo.sk.ee/smart-id-rp/v2/') // In production replace with production service URL
+      // in production replace with correct server SSL key
+      ->setPublicSslKeys("sha256//nTL2Ju/1Mt+WAHeejqZHtgPNRu049iUcXOPq0GmRgJg=;sha256//wkdgNtKpKzMtH/zoLkgeScp1Ux4TLm3sUldobVGA/g4=;sha256//Ps1Im3KeB0Q4AlR+/J9KFd/MOznaARdwo4gURPCLaVA=");
   }
 
   /**
@@ -47,16 +47,16 @@ class ReadmeTest extends TestCase
     // Start copy to README.md
 
     $semanticsIdentifier = SemanticsIdentifier::builder()
-        ->withSemanticsIdentifierType('PNO')
-        ->withCountryCode('LT')
-        ->withIdentifier('30303039914')
-        ->build();
+      ->withSemanticsIdentifierType('PNO')
+      ->withCountryCode('LT')
+      ->withIdentifier('30303039914')
+      ->build();
 
     // For security reasons a new hash value must be created for each new authentication request
     $authenticationHash = AuthenticationHash::generate();
 
-    echo 'Random string (as base64): '.base64_encode($authenticationHash->getDataToSign()) . "\n";
-    echo 'Base64 digest of that random string: '.base64_encode($authenticationHash->getHash()) . "\n";
+    echo 'Random string (as base64): ' . base64_encode($authenticationHash->getDataToSign()) . "\n";
+    echo 'Base64 digest of that random string: ' . base64_encode($authenticationHash->getHash()) . "\n";
 
     $verificationCode = $authenticationHash->calculateVerificationCode();
 
@@ -64,55 +64,47 @@ class ReadmeTest extends TestCase
     echo "Verification code: " . $verificationCode . "\n";
 
     $authenticationResponse = null;
-    try
-    {
+    try {
       $authenticationResponse = $this->client->authentication()
-          ->createAuthentication()
-          ->withSemanticsIdentifier( $semanticsIdentifier )
-          ->withAuthenticationHash( $authenticationHash )
-          ->withCertificateLevel( CertificateLevelCode::QUALIFIED ) // Certificate level can either be "QUALIFIED" or "ADVANCED"
-          ->withAllowedInteractionsOrder((array(
-              Interaction::ofTypeVerificationCodeChoice("Enter awesome portal?"),
-              Interaction::ofTypeDisplayTextAndPIN("Enter awesome portal?"))))
-          ->authenticate(); // this blocks until user has responded
-    }
-    catch (UserRefusedException $e) {
+        ->createAuthentication()
+        ->withSemanticsIdentifier($semanticsIdentifier)
+        ->withAuthenticationHash($authenticationHash)
+        ->withCertificateLevel(CertificateLevelCode::QUALIFIED) // Certificate level can either be "QUALIFIED" or "ADVANCED"
+        ->withAllowedInteractionsOrder((array(
+          Interaction::ofTypeVerificationCodeChoice("Enter awesome portal?"),
+          Interaction::ofTypeDisplayTextAndPIN("Enter awesome portal?")
+        )))
+        ->authenticate(); // this blocks until user has responded
+    } catch (UserRefusedException $e) {
       throw new RuntimeException("You pressed cancel in Smart-ID app.");
-    }
-    catch (UserSelectedWrongVerificationCodeException $e) {
+    } catch (UserSelectedWrongVerificationCodeException $e) {
       throw new RuntimeException("You selected wrong verification code in Smart-ID app. Please try again. ");
-    }
-    catch (SessionTimeoutException $e) {
+    } catch (SessionTimeoutException $e) {
       throw new RuntimeException("Session timed out (you didn't enter PIN1 in Smart-ID app).");
-    }
-    catch (UserAccountNotFoundException $e) {
+    } catch (UserAccountNotFoundException $e) {
       throw new RuntimeException("User does not have a Smart-ID account");
-    }
-    catch (UserAccountException $e) {
+    } catch (UserAccountException $e) {
       throw new RuntimeException("Unable to authenticate due to a problem with your Smart-ID account.");
-    }
-    catch (EnduringSmartIdException $e) {
+    } catch (EnduringSmartIdException $e) {
       throw new RuntimeException("Problem with connecting to Smart-ID service. Please try again later.");
-    }
-    catch (SmartIdException $e) {
-      throw new RuntimeException("Smart-ID authentication process failed for uncertain reason.". $e);
+    } catch (SmartIdException $e) {
+      throw new RuntimeException("Smart-ID authentication process failed for uncertain reason." . $e);
     }
 
-    echo 'Signature as base64:'.$authenticationResponse->getValueInBase64()."\n\n";
+    echo 'Signature as base64:' . $authenticationResponse->getValueInBase64() . "\n\n";
 
-    echo 'PEM certificate:'.$authenticationResponse->getCertificate();
+    echo 'PEM certificate:' . $authenticationResponse->getCertificate();
 
     // create a folder with name "trusted_certificates" and set path to that folder here:
-    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../resources';
+    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../resources/trusted_certificates';
 
     $authenticationResponseValidator = new AuthenticationResponseValidator($pathToFolderWithTrustedCertificates);
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
 
     if ($authenticationResult->isValid()) {
       echo "Hooray! Authentication result is valid";
-    }
-    else {
-       throw new RuntimeException("Error! Response is not valid! Error(s): ". implode(",", $authenticationResult->getErrors()));
+    } else {
+      throw new RuntimeException("Error! Response is not valid! Error(s): " . implode(",", $authenticationResult->getErrors()));
     }
 
     $authenticationIdentity = $authenticationResult->getAuthenticationIdentity();
@@ -122,14 +114,14 @@ class ReadmeTest extends TestCase
     echo "born " . $authenticationIdentity->getDateOfBirth()->format("D d F o") . "\n";
 
     // you might need this if you want to start authentication with document number
-    echo "Authenticated user documentNumber is: ".$authenticationResponse->getDocumentNumber(). "\n";
+    echo "Authenticated user documentNumber is: " . $authenticationResponse->getDocumentNumber() . "\n";
 
 
     // END COPYING to README.md starting this line.
 
-    self::assertEquals('OK', $authenticationIdentity->getGivenName() );
-    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName() );
-    self::assertEquals('PNOLT-30303039914-MOCK-Q', $authenticationResponse->getDocumentNumber() );
+    self::assertEquals('OK', $authenticationIdentity->getGivenName());
+    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName());
+    self::assertEquals('PNOLT-30303039914-MOCK-Q', $authenticationResponse->getDocumentNumber());
   }
 
   /**
@@ -141,46 +133,44 @@ class ReadmeTest extends TestCase
     $verificationCode = $authenticationHash->calculateVerificationCode();
     $authenticationResponse = null;
 
-    try
-    {
+    try {
       // START COPY
 
       $authenticationResponse = $this->client->authentication()
-          ->createAuthentication()
-          ->withDocumentNumber( 'PNOLT-30303039914-MOCK-Q' )
-          ->withAuthenticationHash( $authenticationHash )
-          ->withCertificateLevel( CertificateLevelCode::QUALIFIED ) // Certificate level can either be "QUALIFIED" or "ADVANCED"
-          ->withAllowedInteractionsOrder((array(
-              Interaction::ofTypeVerificationCodeChoice("Enter awesome portal?"),
-              Interaction::ofTypeDisplayTextAndPIN("Enter awesome portal?"))))
-          ->authenticate(); // this blocks until user has responded
+        ->createAuthentication()
+        ->withDocumentNumber('PNOLT-30303039914-MOCK-Q')
+        ->withAuthenticationHash($authenticationHash)
+        ->withCertificateLevel(CertificateLevelCode::QUALIFIED) // Certificate level can either be "QUALIFIED" or "ADVANCED"
+        ->withAllowedInteractionsOrder((array(
+          Interaction::ofTypeVerificationCodeChoice("Enter awesome portal?"),
+          Interaction::ofTypeDisplayTextAndPIN("Enter awesome portal?")
+        )))
+        ->authenticate(); // this blocks until user has responded
 
       // END COPY
 
-    }
-    catch (SmartIdException $e) {
-      throw new RuntimeException("Smart-ID authentication process failed for uncertain reason.". $e);
+    } catch (SmartIdException $e) {
+      throw new RuntimeException("Smart-ID authentication process failed for uncertain reason." . $e);
     }
 
     // create a folder with name "trusted_certificates" and set path to that folder here:
-    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../resources';
+    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../resources/trusted_certificates';
 
     $authenticationResponseValidator = new AuthenticationResponseValidator($pathToFolderWithTrustedCertificates);
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
 
     if (!$authenticationResult->isValid()) {
-      throw new RuntimeException("Error! Response is not valid! Error(s): ". implode(",", $authenticationResult->getErrors()));
+      throw new RuntimeException("Error! Response is not valid! Error(s): " . implode(",", $authenticationResult->getErrors()));
     }
 
     $authenticationIdentity = $authenticationResult->getAuthenticationIdentity();
 
     // DO NOT INCLUDE CODE BELOW IN README
 
-    self::assertEquals('OK', $authenticationIdentity->getGivenName() );
-    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName() );
-    self::assertEquals('LT', $authenticationIdentity->getCountry() );
+    self::assertEquals('OK', $authenticationIdentity->getGivenName());
+    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName());
+    self::assertEquals('LT', $authenticationIdentity->getCountry());
     self::assertEquals('03.03.1903', $authenticationIdentity->getDateOfBirth()->format("d.m.o"));
-
   }
 
   /**
@@ -190,12 +180,12 @@ class ReadmeTest extends TestCase
   {
 
     $semanticsIdentifier = SemanticsIdentifier::builder()
-        ->withSemanticsIdentifierType('PNO')
-        ->withCountryCode('LT')
-        ->withIdentifier('30303039914')
-        ->build();
+      ->withSemanticsIdentifierType('PNO')
+      ->withCountryCode('LT')
+      ->withIdentifier('30303039914')
+      ->build();
 
-// For security reasons a new hash value must be created for each new authentication request
+    // For security reasons a new hash value must be created for each new authentication request
     $authenticationHash = AuthenticationHash::generate();
 
     $verificationCode = $authenticationHash->calculateVerificationCode();
@@ -205,44 +195,39 @@ class ReadmeTest extends TestCase
     // construct semantics identifier and authentication has, display verification code to the user
 
     $sessionId = null;
-    try
-    {
+    try {
       $sessionId = $this->client->authentication()
-          ->createAuthentication()
-          ->withSemanticsIdentifier( $semanticsIdentifier ) // or with document number: ->withDocumentNumber( 'PNOEE-10101010005-Z1B2-Q' )
-          ->withAuthenticationHash( $authenticationHash )
-          ->withCertificateLevel( CertificateLevelCode::QUALIFIED ) // Certificate level can either be "QUALIFIED" or "ADVANCED"
-          ->withAllowedInteractionsOrder((array(
-              Interaction::ofTypeVerificationCodeChoice("Ready to poll?"),
-              Interaction::ofTypeDisplayTextAndPIN("Ready to poll status repeatedly?"))))
-          ->startAuthenticationAndReturnSessionId();
-    }
-    catch (SmartIdException $e) {
+        ->createAuthentication()
+        ->withSemanticsIdentifier($semanticsIdentifier) // or with document number: ->withDocumentNumber( 'PNOEE-10101010005-Z1B2-Q' )
+        ->withAuthenticationHash($authenticationHash)
+        ->withCertificateLevel(CertificateLevelCode::QUALIFIED) // Certificate level can either be "QUALIFIED" or "ADVANCED"
+        ->withAllowedInteractionsOrder((array(
+          Interaction::ofTypeVerificationCodeChoice("Ready to poll?"),
+          Interaction::ofTypeDisplayTextAndPIN("Ready to poll status repeatedly?")
+        )))
+        ->startAuthenticationAndReturnSessionId();
+    } catch (SmartIdException $e) {
       // Handle exception (more on exceptions in "Handling intentional exceptions")
-      throw new RuntimeException("Authentication failed. NB! Use exception handling blocks from above example.". $e);
+      throw new RuntimeException("Authentication failed. NB! Use exception handling blocks from above example." . $e);
     }
 
     $authenticationResponse = null;
-    try
-    {
-      for ( $i = 0; $i <= 10; $i++ )
-      {
+    try {
+      for ($i = 0; $i <= 10; $i++) {
         $authenticationResponse = $this->client->authentication()
-            ->createSessionStatusFetcher()
-            ->withSessionId( $sessionId )
-            ->withAuthenticationHash( $authenticationHash )
-            ->withSessionStatusResponseSocketTimeoutMs( 10000 )
-            ->getAuthenticationResponse();
+          ->createSessionStatusFetcher()
+          ->withSessionId($sessionId)
+          ->withAuthenticationHash($authenticationHash)
+          ->withSessionStatusResponseSocketTimeoutMs(10000)
+          ->getAuthenticationResponse();
 
-        if ( !$authenticationResponse->isRunningState() )
-        {
+        if (!$authenticationResponse->isRunningState()) {
           break;
         }
-        sleep( 5 );
+        sleep(5);
       }
-    }
-    catch (SmartIdException $e) {
-      throw new RuntimeException("Authentication failed. NB! Use exception handling blocks from above example.". $e);
+    } catch (SmartIdException $e) {
+      throw new RuntimeException("Authentication failed. NB! Use exception handling blocks from above example." . $e);
     }
 
     // validate authentication result, get authentication person details
@@ -250,16 +235,15 @@ class ReadmeTest extends TestCase
     // END COPY
 
     // create a folder with name "trusted_certificates" and set path to that folder here:
-    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../resources';
+    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../resources/trusted_certificates';
     $authenticationResponseValidator = new AuthenticationResponseValidator($pathToFolderWithTrustedCertificates);
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
 
 
     if ($authenticationResult->isValid()) {
       echo "Hooray! Authentication result is valid";
-    }
-    else {
-      throw new RuntimeException("Error! Response is not valid! Error(s): ". implode(",", $authenticationResult->getErrors()));
+    } else {
+      throw new RuntimeException("Error! Response is not valid! Error(s): " . implode(",", $authenticationResult->getErrors()));
     }
 
     $authenticationIdentity = $authenticationResult->getAuthenticationIdentity();
@@ -270,5 +254,4 @@ class ReadmeTest extends TestCase
 
     self::assertTrue(true);
   }
-
 }

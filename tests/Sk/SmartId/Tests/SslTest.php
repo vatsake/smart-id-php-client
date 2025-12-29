@@ -2,7 +2,7 @@
 
 namespace Sk\SmartId\Tests;
 
-use Sk\SmartId\Api\Data\AuthenticationSessionRequest;
+use Sk\SmartId\Api\Data\SessionRequest;
 use Sk\SmartId\Api\Data\DigestCalculator;
 use Sk\SmartId\Api\Data\HashType;
 use Sk\SmartId\Api\SmartIdRestConnector;
@@ -19,7 +19,7 @@ class SslTest extends Setup
         $this->expectExceptionMessage("SSL: public key does not match pinned public key");
         $connector = new SmartIdRestConnector( DummyData::TEST_URL );
         $connector->setPublicSslKeys("sha256//l2uvq6ftLN4LZ+8Un+71J2vH1BT9wTbtrE5+Fj3Vc5g=;");
-        $authenticationSessionRequest = new AuthenticationSessionRequest();
+        $authenticationSessionRequest = new SessionRequest();
         $authenticationSessionRequest
                 ->setRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
                 ->setRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
@@ -42,7 +42,7 @@ class SslTest extends Setup
     {
         $connector = new SmartIdRestConnector( DummyData::TEST_URL );
         $connector->setPublicSslKeys("");
-        $authenticationSessionRequest = new AuthenticationSessionRequest();
+        $authenticationSessionRequest = new SessionRequest();
         $authenticationSessionRequest
                 ->setRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
                 ->setRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
@@ -65,7 +65,7 @@ class SslTest extends Setup
 
         $connector = new SmartIdRestConnector( "www.google.com");
         $connector->setPublicSslKeys("");
-        $authenticationSessionRequest = new AuthenticationSessionRequest();
+        $authenticationSessionRequest = new SessionRequest();
         $authenticationSessionRequest
                 ->setRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
                 ->setRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )

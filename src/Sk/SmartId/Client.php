@@ -24,12 +24,14 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId;
 
 use InvalidArgumentException;
 use Sk\SmartId\Api\AbstractApi;
 use Sk\SmartId\Api\ApiType;
 use Sk\SmartId\Api\Authentication;
+use Sk\SmartId\Api\Signature;
 
 class Client
 {
@@ -57,9 +59,9 @@ class Client
    */
   private $hostUrl;
 
-    /**
-     * @var string
-     */
+  /**
+   * @var string
+   */
   private $sslKeys;
 
   /**
@@ -67,19 +69,16 @@ class Client
    * @return AbstractApi
    * @throws InvalidArgumentException
    */
-  public function api( string $apiName )
+  public function api(string $apiName)
   {
-    switch ( $apiName )
-    {
-      case ApiType::AUTHENTICATION:
-      {
-        return $this->authentication();
-      }
+    switch ($apiName) {
+      case ApiType::AUTHENTICATION: {
+          return $this->authentication();
+        }
 
-      default:
-      {
-        throw new InvalidArgumentException( 'No such api at present time!' );
-      }
+      default: {
+          throw new InvalidArgumentException('No such api at present time!');
+        }
     }
   }
 
@@ -88,19 +87,30 @@ class Client
    */
   public function authentication(): Authentication
   {
-    if ( !isset( $this->apis['authentication'] ) )
-    {
-      $this->apis['authentication'] = new Authentication( $this );
+    if (!isset($this->apis['authentication'])) {
+      $this->apis['authentication'] = new Authentication($this);
     }
 
     return $this->apis['authentication'];
   }
 
   /**
+   * @return Signature
+   */
+  public function signature(): Signature
+  {
+    if (!isset($this->apis['signature'])) {
+      $this->apis['signature'] = new Signature($this);
+    }
+
+    return $this->apis['signature'];
+  }
+
+  /**
    * @param string $relyingPartyUUID
    * @return $this
    */
-  public function setRelyingPartyUUID(string $relyingPartyUUID ): Client
+  public function setRelyingPartyUUID(string $relyingPartyUUID): Client
   {
     $this->relyingPartyUUID = $relyingPartyUUID;
 
@@ -119,7 +129,7 @@ class Client
    * @param string $relyingPartyName
    * @return $this
    */
-  public function setRelyingPartyName(string $relyingPartyName ): Client
+  public function setRelyingPartyName(string $relyingPartyName): Client
   {
     $this->relyingPartyName = $relyingPartyName;
 
@@ -138,7 +148,7 @@ class Client
    * @param string $hostUrl
    * @return $this
    */
-  public function setHostUrl(string $hostUrl ): Client
+  public function setHostUrl(string $hostUrl): Client
   {
     $this->hostUrl = $hostUrl;
 
@@ -155,14 +165,13 @@ class Client
 
   public function setPublicSslKeys(string $sslKeys): Client
   {
-      $this->sslKeys = $sslKeys;
+    $this->sslKeys = $sslKeys;
 
-      return $this;
+    return $this;
   }
 
   public function getPublicSslKeys(): ?string
   {
-      return $this->sslKeys;
+    return $this->sslKeys;
   }
-
 }

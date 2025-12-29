@@ -24,10 +24,11 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId\Tests\Rest;
 
-use Sk\SmartId\Api\Data\AuthenticationSessionRequest;
-use Sk\SmartId\Api\Data\AuthenticationSessionResponse;
+use Sk\SmartId\Api\Data\SessionRequest;
+use Sk\SmartId\Api\Data\SessionResponse;
 use Sk\SmartId\Api\Data\SemanticsIdentifier;
 use Sk\SmartId\Api\Data\SessionStatus;
 use Sk\SmartId\Api\Data\SessionStatusRequest;
@@ -37,24 +38,24 @@ use Sk\SmartId\Exception\SessionNotFoundException;
 class SmartIdConnectorSpy implements SmartIdConnector
 {
   /**
-   * @var AuthenticationSessionResponse
+   * @var SessionResponse
    */
-  public $authenticationSessionResponseToRespond;
+  public $sessionResponseToRespond;
 
   /**
    * @var string
    */
   public $documentNumberUsed;
 
-    /**
-     * @var SemanticsIdentifier
-     */
+  /**
+   * @var SemanticsIdentifier
+   */
   public $semanticsIdentifierUsed;
 
   /**
-   * @var AuthenticationSessionRequest
+   * @var SessionRequest
    */
-  public $authenticationSessionRequestUsed;
+  public $sessionRequestUsed;
 
   /**
    * @var SessionStatusRequest
@@ -73,14 +74,14 @@ class SmartIdConnectorSpy implements SmartIdConnector
 
   /**
    * @param string $documentNumber
-   * @param AuthenticationSessionRequest $request
-   * @return AuthenticationSessionResponse
+   * @param SessionRequest $request
+   * @return SessionResponse
    */
-  public function authenticate(string $documentNumber, AuthenticationSessionRequest $request ): AuthenticationSessionResponse
+  public function authenticate(string $documentNumber, SessionRequest $request): SessionResponse
   {
     $this->documentNumberUsed = $documentNumber;
-    $this->authenticationSessionRequestUsed = $request;
-    return $this->authenticationSessionResponseToRespond;
+    $this->sessionRequestUsed = $request;
+    return $this->sessionResponseToRespond;
   }
 
   /**
@@ -88,17 +89,45 @@ class SmartIdConnectorSpy implements SmartIdConnector
    * @throws SessionNotFoundException
    * @return SessionStatus
    */
-  public function getSessionStatus( SessionStatusRequest $request ): SessionStatus
+  public function getSessionStatus(SessionStatusRequest $request): SessionStatus
   {
     $this->sessionIdUsed = $request->getSessionId();
     $this->sessionStatusRequestUsed = $request;
     return $this->sessionStatusToRespond;
   }
 
-    function authenticateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, AuthenticationSessionRequest $request): AuthenticationSessionResponse
-    {
-        $this->semanticsIdentifierUsed = $semanticsIdentifier;
-        $this->authenticationSessionRequestUsed = $request;
-        return $this->authenticationSessionResponseToRespond;
-    }
+  function authenticateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, SessionRequest $request): SessionResponse
+  {
+    $this->semanticsIdentifierUsed = $semanticsIdentifier;
+    $this->sessionRequestUsed = $request;
+    return $this->sessionResponseToRespond;
+  }
+
+  function chooseCertificate(string $documentNumber, SessionRequest $request): SessionResponse
+  {
+    $this->documentNumberUsed = $documentNumber;
+    $this->sessionRequestUsed = $request;
+    return $this->sessionResponseToRespond;
+  }
+
+  function chooseCertificateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, SessionRequest $request): SessionResponse
+  {
+    $this->semanticsIdentifierUsed = $semanticsIdentifier;
+    $this->sessionRequestUsed = $request;
+    return $this->sessionResponseToRespond;
+  }
+
+  function sign(string $documentNumber, SessionRequest $request): SessionResponse
+  {
+    $this->documentNumberUsed = $documentNumber;
+    $this->sessionRequestUsed = $request;
+    return $this->sessionResponseToRespond;
+  }
+
+  function signWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, SessionRequest $request): SessionResponse
+  {
+    $this->semanticsIdentifierUsed = $semanticsIdentifier;
+    $this->sessionRequestUsed = $request;
+    return $this->sessionResponseToRespond;
+  }
 }

@@ -24,6 +24,7 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId\Api\Data;
 
 class SessionStatus extends PropertyMapper
@@ -70,7 +71,7 @@ class SessionStatus extends PropertyMapper
    * @param string $state
    * @return $this
    */
-  public function setState(string $state ): SessionStatus
+  public function setState(string $state): SessionStatus
   {
     $this->state = $state;
     return $this;
@@ -84,11 +85,11 @@ class SessionStatus extends PropertyMapper
     return $this->result;
   }
 
-    /**
-     * @param SessionResult|null $result
-     * @return $this
-     */
-  public function setResult( SessionResult $result = null ): SessionStatus
+  /**
+   * @param SessionResult|null $result
+   * @return $this
+   */
+  public function setResult(SessionResult $result = null): SessionStatus
   {
     $this->result = $result;
     return $this;
@@ -102,11 +103,11 @@ class SessionStatus extends PropertyMapper
     return $this->signature;
   }
 
-    /**
-     * @param SessionSignature|null $signature
-     * @return $this
-     */
-  public function setSignature( SessionSignature $signature = null ): SessionStatus
+  /**
+   * @param SessionSignature|null $signature
+   * @return $this
+   */
+  public function setSignature(SessionSignature $signature = null): SessionStatus
   {
     $this->signature = $signature;
     return $this;
@@ -120,45 +121,45 @@ class SessionStatus extends PropertyMapper
     return $this->cert;
   }
 
-    /**
-     * @param SessionCertificate|null $cert
-     * @return $this
-     */
-  public function setCert( SessionCertificate $cert = null ): SessionStatus
+  /**
+   * @param SessionCertificate|null $cert
+   * @return $this
+   */
+  public function setCert(SessionCertificate $cert = null): SessionStatus
   {
     $this->cert = $cert;
     return $this;
   }
 
-    /**
-     * @return array
-     */
-    public function getIgnoredProperties(): ?array
-    {
-        return $this->ignoredProperties;
-    }
+  /**
+   * @return array
+   */
+  public function getIgnoredProperties(): ?array
+  {
+    return $this->ignoredProperties;
+  }
 
-    /**
-     * @param array $ignoredProperties
-     */
-    public function setIgnoredProperties(array $ignoredProperties)
-    {
-        $this->ignoredProperties = $ignoredProperties;
-    }
+  /**
+   * @param array $ignoredProperties
+   */
+  public function setIgnoredProperties(array $ignoredProperties)
+  {
+    $this->ignoredProperties = $ignoredProperties;
+  }
 
-    /**
-     * @return string
-     */
-    public function getInteractionFlowUsed(): ?string
-    {
-        return $this->interactionFlowUsed;
-    }
+  /**
+   * @return string
+   */
+  public function getInteractionFlowUsed(): ?string
+  {
+    return $this->interactionFlowUsed;
+  }
 
   public function setInteractionFlowUsed(?string $interactionFlowUsed): SessionStatus
-    {
-        $this->interactionFlowUsed = $interactionFlowUsed;
-        return $this;
-    }
+  {
+    $this->interactionFlowUsed = $interactionFlowUsed;
+    return $this;
+  }
 
 
 
@@ -167,6 +168,6 @@ class SessionStatus extends PropertyMapper
    */
   public function isRunningState(): bool
   {
-    return $this->state != null && strcasecmp( SessionStatusCode::RUNNING, $this->state ) == 0;
+    return $this->state != null && strcasecmp(SessionStatusCode::RUNNING, $this->state) == 0;
   }
 }

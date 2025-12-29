@@ -24,13 +24,14 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId\Tests\Rest;
 
 use PHPUnit\Framework\TestCase;
 use Sk\SmartId\Api\AuthenticationResponseValidator;
 use Sk\SmartId\Api\Data\AuthenticationHash;
-use Sk\SmartId\Api\Data\AuthenticationSessionRequest;
-use Sk\SmartId\Api\Data\AuthenticationSessionResponse;
+use Sk\SmartId\Api\Data\SessionRequest;
+use Sk\SmartId\Api\Data\SessionResponse;
 use Sk\SmartId\Api\Data\DigestCalculator;
 use Sk\SmartId\Api\Data\HashType;
 use Sk\SmartId\Api\Data\Interaction;
@@ -46,16 +47,16 @@ use Sk\SmartId\Tests\Setup;
 class SmartIdRestIntegrationTest extends TestCase
 {
   /**
-   * @var SmartIdConnector
+   * @var SmartIdRestConnector
    */
   private $connector;
   private $client;
 
-  protected function setUp() : void
+  protected function setUp(): void
   {
-    $this->connector = new SmartIdRestConnector( DummyData::TEST_URL );
+    $this->connector = new SmartIdRestConnector(DummyData::TEST_URL);
     $this->client = new Client();
-    $this->client->setHostUrl( DummyData::TEST_URL );
+    $this->client->setHostUrl(DummyData::TEST_URL);
     $this->connector->setPublicSslKeys($this->client->getPublicSslKeys());
   }
 
@@ -64,7 +65,7 @@ class SmartIdRestIntegrationTest extends TestCase
    */
   public function waitForMobileAppToFinish()
   {
-    sleep( 10 );
+    sleep(10);
   }
 
   /**
@@ -74,9 +75,9 @@ class SmartIdRestIntegrationTest extends TestCase
   {
     $authenticationHash = AuthenticationHash::generate();
 
-    echo 'Base64 of random data to sign: '. base64_encode($authenticationHash->getDataToSign()) . "\n";
-    echo 'Base64 of random data digest: '. base64_encode($authenticationHash->getHash()) . "\n";
-    echo 'Length of random data digest: '. strlen($authenticationHash->getHash()) . "\n";
+    echo 'Base64 of random data to sign: ' . base64_encode($authenticationHash->getDataToSign()) . "\n";
+    echo 'Base64 of random data digest: ' . base64_encode($authenticationHash->getHash()) . "\n";
+    echo 'Length of random data digest: ' . strlen($authenticationHash->getHash()) . "\n";
 
 
 
@@ -84,50 +85,49 @@ class SmartIdRestIntegrationTest extends TestCase
     $authenticationSessionResponse = $this->fetchAuthenticationSession($request);
 
     $authenticationResponse = $this->client->authentication()
-        ->setSessionStatusResponseSocketTimeoutMs( 10000 )
-        ->createSessionStatusFetcher()
-        ->withSessionId( $authenticationSessionResponse->getSessionID() )
-            ->withAuthenticationHash( $authenticationHash )
-        ->getAuthenticationResponse();
+      ->setSessionStatusResponseSocketTimeoutMs(10000)
+      ->createSessionStatusFetcher()
+      ->withSessionId($authenticationSessionResponse->getSessionID())
+      ->withAuthenticationHash($authenticationHash)
+      ->getAuthenticationResponse();
 
-    echo "Signed data is still: " .base64_encode($authenticationResponse->getSignedData()) . "\n";
-    echo "Signature (valueInBase64):" . $authenticationResponse->getValueInBase64(). "\n\n";
-    echo "Certificate:" . $authenticationResponse->getCertificate(). "\n";
+    echo "Signed data is still: " . base64_encode($authenticationResponse->getSignedData()) . "\n";
+    echo "Signature (valueInBase64):" . $authenticationResponse->getValueInBase64() . "\n\n";
+    echo "Certificate:" . $authenticationResponse->getCertificate() . "\n";
 
 
-    $validator = new AuthenticationResponseValidator( Setup::RESOURCES );
+    $validator = new AuthenticationResponseValidator(Setup::RESOURCES);
     $smartIdAuthenticationResult = $validator->validate($authenticationResponse);
 
     self::assertTrue($smartIdAuthenticationResult->isValid());
-
   }
 
   /**
-   * @return AuthenticationSessionResponse
+   * @return SessionResponse
    */
-  private function fetchAuthenticationSession(AuthenticationSessionRequest $request): AuthenticationSessionResponse
+  private function fetchAuthenticationSession(SessionRequest $request): SessionResponse
   {
 
-    $authenticationSessionResponse = $this->connector->authenticate( DummyData::VALID_DOCUMENT_NUMBER, $request );
-    $this->assertNotNull( $authenticationSessionResponse );
-    $this->assertNotEmpty( $authenticationSessionResponse->getSessionID() );
+    $authenticationSessionResponse = $this->connector->authenticate(DummyData::VALID_DOCUMENT_NUMBER, $request);
+    $this->assertNotNull($authenticationSessionResponse);
+    $this->assertNotEmpty($authenticationSessionResponse->getSessionID());
     return $authenticationSessionResponse;
   }
 
   /**
    * @param $dataToSign
-   * @return AuthenticationSessionRequest
+   * @return SessionRequest
    */
-  private function createAuthenticationSessionRequest($dataToSign): AuthenticationSessionRequest
+  private function createAuthenticationSessionRequest($dataToSign): SessionRequest
   {
-    $authenticationSessionRequest = new AuthenticationSessionRequest();
+    $authenticationSessionRequest = new SessionRequest();
     $authenticationSessionRequest
-        ->setRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->setRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->setAllowedInteractionsOrder(array(Interaction::ofTypeDisplayTextAndPIN("Hellou")))
-        ->setHashType( HashType::SHA512 );
+      ->setRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->setRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->setAllowedInteractionsOrder(array(Interaction::ofTypeDisplayTextAndPIN("Hellou")))
+      ->setHashType(HashType::SHA512);
     $hashInBase64 = $this->calculateHashInBase64($dataToSign);
-    $authenticationSessionRequest->setHash( $hashInBase64 );
+    $authenticationSessionRequest->setHash($hashInBase64);
     return $authenticationSessionRequest;
   }
 
@@ -135,53 +135,51 @@ class SmartIdRestIntegrationTest extends TestCase
    * @param string $dataToSign
    * @return string
    */
-  private function calculateHashInBase64(string $dataToSign ): string
+  private function calculateHashInBase64(string $dataToSign): string
   {
-    $digestValue = DigestCalculator::calculateDigest( $dataToSign, HashType::SHA512 );
-    return base64_encode( $digestValue );
+    $digestValue = DigestCalculator::calculateDigest($dataToSign, HashType::SHA512);
+    return base64_encode($digestValue);
   }
 
   /**
    * @param string $sessionId
    * @return SessionStatus
    */
-  private function pollSessionStatus( $sessionId ): SessionStatus
+  private function pollSessionStatus($sessionId): SessionStatus
   {
     /** @var SessionStatus $sessionStatus */
     $sessionStatus = null;
-    while ( $sessionStatus === null || strcasecmp( SessionStatusCode::RUNNING, $sessionStatus->getState() ) === 0 )
-    {
-      $request = $this->createSessionStatusRequest( $sessionId );
-      $this->assertEquals( array('timeoutMs' => 1000), $request->toArray() );
-      $sessionStatus = $this->connector->getSessionStatus( $request );
-      sleep( 1 );
+    while ($sessionStatus === null || strcasecmp(SessionStatusCode::RUNNING, $sessionStatus->getState()) === 0) {
+      $request = $this->createSessionStatusRequest($sessionId);
+      $this->assertEquals(array('timeoutMs' => 1000), $request->toArray());
+      $sessionStatus = $this->connector->getSessionStatus($request);
+      sleep(1);
     }
-    $this->assertEquals( SessionStatusCode::COMPLETE, $sessionStatus->getState() );
+    $this->assertEquals(SessionStatusCode::COMPLETE, $sessionStatus->getState());
     return $sessionStatus;
   }
 
   /**
    * @param SessionStatus|null $sessionStatus
    */
-  private function assertAuthenticationResultCreated( SessionStatus $sessionStatus = null )
+  private function assertAuthenticationResultCreated(SessionStatus $sessionStatus = null)
   {
-    $this->assertNotNull( $sessionStatus );
+    $this->assertNotNull($sessionStatus);
 
-    $this->assertNotEmpty( $sessionStatus->getResult() );
-    $this->assertNotEmpty( $sessionStatus->getSignature()->getValue() );
-    $this->assertNotEmpty( $sessionStatus->getCert()->getValue() );
-    $this->assertNotEmpty( $sessionStatus->getCert()->getCertificateLevel() );
+    $this->assertNotEmpty($sessionStatus->getResult());
+    $this->assertNotEmpty($sessionStatus->getSignature()->getValue());
+    $this->assertNotEmpty($sessionStatus->getCert()->getValue());
+    $this->assertNotEmpty($sessionStatus->getCert()->getCertificateLevel());
   }
 
   /**
    * @param string $sessionId
    * @return SessionStatusRequest
    */
-  private function createSessionStatusRequest(string $sessionId ): SessionStatusRequest
+  private function createSessionStatusRequest(string $sessionId): SessionStatusRequest
   {
-    $sessionStatusRequest = new SessionStatusRequest( $sessionId );
-    $sessionStatusRequest->setSessionStatusResponseSocketTimeoutMs( 1000 );
+    $sessionStatusRequest = new SessionStatusRequest($sessionId);
+    $sessionStatusRequest->setSessionStatusResponseSocketTimeoutMs(1000);
     return $sessionStatusRequest;
   }
-
 }

@@ -24,9 +24,10 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId\Api\Data;
 
-class AuthenticationSessionRequest
+class SessionRequest
 {
   /**
    * @var string
@@ -63,9 +64,9 @@ class AuthenticationSessionRequest
    */
   private $nonce;
 
-    /**
-     * @var array
-     */
+  /**
+   * @var array
+   */
   private $allowedInteractionsOrder;
 
   /**
@@ -80,7 +81,7 @@ class AuthenticationSessionRequest
    * @param string $relyingPartyUUID
    * @return $this
    */
-  public function setRelyingPartyUUID(string $relyingPartyUUID ): AuthenticationSessionRequest
+  public function setRelyingPartyUUID(string $relyingPartyUUID): SessionRequest
   {
     $this->relyingPartyUUID = $relyingPartyUUID;
     return $this;
@@ -98,7 +99,7 @@ class AuthenticationSessionRequest
    * @param string $relyingPartyName
    * @return $this
    */
-  public function setRelyingPartyName(string $relyingPartyName ): AuthenticationSessionRequest
+  public function setRelyingPartyName(string $relyingPartyName): SessionRequest
   {
     $this->relyingPartyName = $relyingPartyName;
     return $this;
@@ -116,7 +117,7 @@ class AuthenticationSessionRequest
    * @param string|null $networkInterface
    * @return $this
    */
-  public function setNetworkInterface(?string $networkInterface ): AuthenticationSessionRequest
+  public function setNetworkInterface(?string $networkInterface): SessionRequest
   {
     $this->networkInterface = $networkInterface;
     return $this;
@@ -134,7 +135,7 @@ class AuthenticationSessionRequest
    * @param string|null $certificateLevel
    * @return $this
    */
-  public function setCertificateLevel(?string $certificateLevel ): AuthenticationSessionRequest
+  public function setCertificateLevel(?string $certificateLevel): SessionRequest
   {
     $this->certificateLevel = $certificateLevel;
     return $this;
@@ -152,7 +153,7 @@ class AuthenticationSessionRequest
    * @param string $hash
    * @return $this
    */
-  public function setHash(string $hash ): AuthenticationSessionRequest
+  public function setHash(string $hash): SessionRequest
   {
     $this->hash = $hash;
     return $this;
@@ -170,7 +171,7 @@ class AuthenticationSessionRequest
    * @param string $hashType
    * @return $this
    */
-  public function setHashType(string $hashType ): AuthenticationSessionRequest
+  public function setHashType(string $hashType): SessionRequest
   {
     $this->hashType = $hashType;
     return $this;
@@ -188,29 +189,29 @@ class AuthenticationSessionRequest
    * @param string|null $nonce
    * @return $this
    */
-  public function setNonce(?string $nonce ): AuthenticationSessionRequest
+  public function setNonce(?string $nonce): SessionRequest
   {
     $this->nonce = $nonce;
     return $this;
   }
 
-    /**
-     * @return array
-     */
-    public function getAllowedInteractionsOrder(): array
-    {
-        return $this->allowedInteractionsOrder;
-    }
+  /**
+   * @return array
+   */
+  public function getAllowedInteractionsOrder(): array
+  {
+    return $this->allowedInteractionsOrder;
+  }
 
   /**
    * @param array|null $allowedInteractionsOrder
-   * @return AuthenticationSessionRequest
+   * @return SessionRequest
    */
-    public function setAllowedInteractionsOrder(?array $allowedInteractionsOrder): AuthenticationSessionRequest
-    {
-        $this->allowedInteractionsOrder = $allowedInteractionsOrder;
-        return $this;
-    }
+  public function setAllowedInteractionsOrder(?array $allowedInteractionsOrder): SessionRequest
+  {
+    $this->allowedInteractionsOrder = $allowedInteractionsOrder;
+    return $this;
+  }
 
 
 
@@ -220,31 +221,29 @@ class AuthenticationSessionRequest
   public function toArray(): array
   {
     $requiredArray = array(
-        'relyingPartyUUID' => $this->relyingPartyUUID,
-        'relyingPartyName' => $this->relyingPartyName,
-        'hash'             => $this->hash,
-        'hashType'         => strtoupper( $this->hashType ),
+      'relyingPartyUUID' => $this->relyingPartyUUID,
+      'relyingPartyName' => $this->relyingPartyName,
+      'hash'             => $this->hash,
+      'hashType'         => strtoupper($this->hashType),
     );
 
-    if ( isset( $this->certificateLevel ) )
-    {
+    if (isset($this->certificateLevel)) {
       $requiredArray['certificateLevel'] = $this->certificateLevel;
     }
 
-    if ( isset( $this->allowedInteractionsOrder ) )
-    {
-      $requiredArray['allowedInteractionsOrder'] = array_map('\Sk\SmartId\Api\Data\AuthenticationSessionRequest::mapInteractionToArray',
-        $this->allowedInteractionsOrder);
+    if (isset($this->allowedInteractionsOrder)) {
+      $requiredArray['allowedInteractionsOrder'] = array_map(
+        '\Sk\SmartId\Api\Data\SessionRequest::mapInteractionToArray',
+        $this->allowedInteractionsOrder
+      );
     }
 
-    if ( isset( $this->nonce ) )
-    {
+    if (isset($this->nonce)) {
       $requiredArray['nonce'] = $this->nonce;
     }
 
-    if ( isset( $this->networkInterface ) )
-    {
-      $requiredArray[ 'networkInterface' ] = $this->networkInterface;
+    if (isset($this->networkInterface)) {
+      $requiredArray['networkInterface'] = $this->networkInterface;
     }
 
     return $requiredArray;
@@ -252,7 +251,6 @@ class AuthenticationSessionRequest
 
   private static function mapInteractionToArray(Interaction $interaction): array
   {
-      return $interaction->toArray();
+    return $interaction->toArray();
   }
-
 }

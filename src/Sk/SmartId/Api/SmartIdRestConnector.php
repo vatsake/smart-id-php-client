@@ -24,11 +24,12 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId\Api;
 
 use Exception;
-use Sk\SmartId\Api\Data\AuthenticationSessionRequest;
-use Sk\SmartId\Api\Data\AuthenticationSessionResponse;
+use Sk\SmartId\Api\Data\SessionRequest;
+use Sk\SmartId\Api\Data\SessionResponse;
 use Sk\SmartId\Api\Data\SemanticsIdentifier;
 use Sk\SmartId\Api\Data\SessionStatus;
 use Sk\SmartId\Api\Data\SessionStatusRequest;
@@ -44,16 +45,20 @@ class SmartIdRestConnector implements SmartIdConnector
   const AUTHENTICATE_BY_DOCUMENT_NUMBER_PATH = '/authentication/document/{documentNumber}';
   const SESSION_STATUS_URI = '/session/{sessionId}';
   const AUTHENTICATION_BY_SEMANTICS_IDENTIFIER_PATH = '/authentication/etsi/{semantics-identifier}';
+  const CERTIFICATE_BY_DOCUMENT_NUMBER_PATH = '/certificatechoice/document/{documentNumber}';
+  const CERTIFICATE_CHOICE_BY_SEMANTICS_IDENTIFIER_PATH = '/certificatechoice/etsi/{semantics-identifier}';
+  const SIGNATURE_BY_SEMANTICS_IDENTIFIER_PATH = '/signature/etsi/{semantics-identifier}';
+  const SIGNATURE_BY_DOCUMENT_NUMBER_PATH = '/signature/document/{documentNumber}';
 
   const RESPONSE_ERROR_CODES = array(
-      503 => 'Limit exceeded',
-      403 => 'Forbidden!',
-      401 => 'Unauthorized',
+    503 => 'Limit exceeded',
+    403 => 'Forbidden!',
+    401 => 'Unauthorized',
 
-      580 => 'System is under maintenance, retry later',
-      480 => 'The client is old and not supported any more. Relying Party must contact customer support.',
-      472 => 'Person should view app or self-service portal now.',
-      471 => 'No suitable account of requested type found, but user has some other accounts.',
+    580 => 'System is under maintenance, retry later',
+    480 => 'The client is old and not supported any more. Relying Party must contact customer support.',
+    472 => 'Person should view app or self-service portal now.',
+    471 => 'No suitable account of requested type found, but user has some other accounts.',
   );
 
   /**
@@ -71,40 +76,100 @@ class SmartIdRestConnector implements SmartIdConnector
   /**
    * @param string $endpointUrl
    */
-  public function __construct(string $endpointUrl )
+  public function __construct(string $endpointUrl)
   {
     $this->endpointUrl = $endpointUrl;
   }
 
   /**
    * @param string $documentNumber
-   * @param AuthenticationSessionRequest $request
-   * @return AuthenticationSessionResponse
+   * @param SessionRequest $request
+   * @return SessionResponse
    * @throws Exception
    */
-  public function authenticate(string $documentNumber, AuthenticationSessionRequest $request ): AuthenticationSessionResponse
+  public function authenticate(string $documentNumber, SessionRequest $request): SessionResponse
   {
-    $url = rtrim( $this->endpointUrl, '/' ) . self::AUTHENTICATE_BY_DOCUMENT_NUMBER_PATH;
-    $url = str_replace( '{documentNumber}', $documentNumber, $url );
-    return $this->postAuthenticationRequest( $url, $request );
+    $url = rtrim($this->endpointUrl, '/') . self::AUTHENTICATE_BY_DOCUMENT_NUMBER_PATH;
+    $url = str_replace('{documentNumber}', $documentNumber, $url);
+    return $this->postAuthenticationRequest($url, $request);
   }
 
-    /**
-     * @param SemanticsIdentifier $semanticsIdentifier
-     * @param AuthenticationSessionRequest $request
-     * @return AuthenticationSessionResponse
-     * @throws Exception
-     */
-    function authenticateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, AuthenticationSessionRequest $request) :AuthenticationSessionResponse
-    {
-        $url = rtrim( $this->endpointUrl, '/' ) . self::AUTHENTICATION_BY_SEMANTICS_IDENTIFIER_PATH;
-        $url = str_replace( array(
-            '{semantics-identifier}'
-        ), array(
-            $semanticsIdentifier->asString()
-        ), $url );
-        return $this->postAuthenticationRequest($url, $request);
-    }
+  /**
+   * @param SemanticsIdentifier $semanticsIdentifier
+   * @param SessionRequest $request
+   * @return SessionResponse
+   * @throws Exception
+   */
+  function authenticateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, SessionRequest $request): SessionResponse
+  {
+    $url = rtrim($this->endpointUrl, '/') . self::AUTHENTICATION_BY_SEMANTICS_IDENTIFIER_PATH;
+    $url = str_replace(array(
+      '{semantics-identifier}'
+    ), array(
+      $semanticsIdentifier->asString()
+    ), $url);
+    return $this->postAuthenticationRequest($url, $request);
+  }
+
+  /**
+   * @param string $documentNumber
+   * @param SessionRequest $request
+   * @return SessionResponse
+   * @throws Exception
+   */
+  function sign(string $documentNumber, SessionRequest $request): SessionResponse
+  {
+    $url = rtrim($this->endpointUrl, '/') . self::SIGNATURE_BY_DOCUMENT_NUMBER_PATH;
+    $url = str_replace('{documentNumber}', $documentNumber, $url);
+    return $this->postSignatureRequest($url, $request);
+  }
+
+  /**
+   * @param SemanticsIdentifier $semanticsIdentifier
+   * @param SessionRequest $request
+   * @return SessionResponse
+   * @throws Exception
+   */
+  function signWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, SessionRequest $request): SessionResponse
+  {
+    $url = rtrim($this->endpointUrl, '/') . self::SIGNATURE_BY_SEMANTICS_IDENTIFIER_PATH;
+    $url = str_replace(array(
+      '{semantics-identifier}'
+    ), array(
+      $semanticsIdentifier->asString()
+    ), $url);
+    return $this->postSignatureRequest($url, $request);
+  }
+
+  /**
+   * @param string $documentNumber
+   * @param SessionRequest $request
+   * @return SessionResponse
+   * @throws Exception
+   */
+  function chooseCertificate(string $documentNumber, SessionRequest $request): SessionResponse
+  {
+    $url = rtrim($this->endpointUrl, '/') . self::SIGNATURE_BY_DOCUMENT_NUMBER_PATH;
+    $url = str_replace('{documentNumber}', $documentNumber, $url);
+    return $this->postSignatureRequest($url, $request);
+  }
+
+  /**
+   * @param SemanticsIdentifier $semanticsIdentifier
+   * @param SessionRequest $request
+   * @return SessionResponse
+   * @throws Exception
+   */
+  function chooseCertificateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, SessionRequest $request): SessionResponse
+  {
+    $url = rtrim($this->endpointUrl, '/') . self::CERTIFICATE_CHOICE_BY_SEMANTICS_IDENTIFIER_PATH;
+    $url = str_replace(array(
+      '{semantics-identifier}'
+    ), array(
+      $semanticsIdentifier->asString()
+    ), $url);
+    return $this->postCertificateChoiceRequest($url, $request);
+  }
 
   /**
    * @param SessionStatusRequest $request
@@ -112,35 +177,61 @@ class SmartIdRestConnector implements SmartIdConnector
    * @throws Exception
    * @return SessionStatus
    */
-  public function getSessionStatus( SessionStatusRequest $request ) : SessionStatus
+  public function getSessionStatus(SessionStatusRequest $request): SessionStatus
   {
-    $url = rtrim( $this->endpointUrl, '/' ) . self::SESSION_STATUS_URI;
-    $url = str_replace( '{sessionId}', $request->getSessionId(), $url );
-    try
-    {
-        return $this->getRequest( $url, $request->toArray(), 'Sk\SmartId\Api\Data\SessionStatus' );
-    }
-    catch ( NotFoundException $e )
-    {
+    $url = rtrim($this->endpointUrl, '/') . self::SESSION_STATUS_URI;
+    $url = str_replace('{sessionId}', $request->getSessionId(), $url);
+    try {
+      return $this->getRequest($url, $request->toArray(), 'Sk\SmartId\Api\Data\SessionStatus');
+    } catch (NotFoundException $e) {
       throw new SessionNotFoundException();
     }
   }
 
   /**
    * @param string $url
-   * @param AuthenticationSessionRequest $request
-   * @return AuthenticationSessionResponse
+   * @param SessionRequest $request
+   * @return SessionResponse
    * @throws Exception
    * @throws UserAccountNotFoundException
    */
-  private function postAuthenticationRequest(string $url, AuthenticationSessionRequest $request ): AuthenticationSessionResponse
+  private function postCertificateChoiceRequest(string $url, SessionRequest $request): SessionResponse
   {
-    try
-    {
-      return $this->postRequest( $url, $request->toArray(), 'Sk\SmartId\Api\Data\AuthenticationSessionResponse' );
+    try {
+      return $this->postRequest($url, $request->toArray(), 'Sk\SmartId\Api\Data\SessionResponse');
+    } catch (NotFoundException $e) {
+      throw new UserAccountNotFoundException($e->getMessage());
     }
-    catch ( NotFoundException $e )
-    {
+  }
+
+  /**
+   * @param string $url
+   * @param SessionRequest $request
+   * @return SessionResponse
+   * @throws Exception
+   * @throws UserAccountNotFoundException
+   */
+  private function postSignatureRequest(string $url, SessionRequest $request): SessionResponse
+  {
+    try {
+      return $this->postRequest($url, $request->toArray(), 'Sk\SmartId\Api\Data\SessionResponse');
+    } catch (NotFoundException $e) {
+      throw new UserAccountNotFoundException($e->getMessage());
+    }
+  }
+
+  /**
+   * @param string $url
+   * @param SessionRequest $request
+   * @return SessionResponse
+   * @throws Exception
+   * @throws UserAccountNotFoundException
+   */
+  private function postAuthenticationRequest(string $url, SessionRequest $request): SessionResponse
+  {
+    try {
+      return $this->postRequest($url, $request->toArray(), 'Sk\SmartId\Api\Data\SessionResponse');
+    } catch (NotFoundException $e) {
       throw new UserAccountNotFoundException($e->getMessage());
     }
   }
@@ -152,14 +243,14 @@ class SmartIdRestConnector implements SmartIdConnector
    * @return mixed
    * @throws Exception
    */
-  function postRequest(string $url, array $params, string $responseType )
+  function postRequest(string $url, array $params, string $responseType)
   {
     $this->curl = new Curl();
     $this->curl->setPublicSslKeys($this->publicSslKeys);
-    $this->setNetworkInterface( $params );
-    $this->curl->curlPost( $url, array(), json_encode( $params ) );
-    $this->curl->setCurlParam( CURLOPT_HTTPHEADER, array('content-type: application/json','User-Agent: smart-id-php-client/'.Client::VERSION.' (PHP/'.phpversion().')') );
-    return $this->request( $url, $responseType );
+    $this->setNetworkInterface($params);
+    $this->curl->curlPost($url, array(), json_encode($params));
+    $this->curl->setCurlParam(CURLOPT_HTTPHEADER, array('content-type: application/json', 'User-Agent: smart-id-php-client/' . Client::VERSION . ' (PHP/' . phpversion() . ')'));
+    return $this->request($url, $responseType);
   }
 
   /**
@@ -169,14 +260,14 @@ class SmartIdRestConnector implements SmartIdConnector
    * @return mixed
    * @throws Exception
    */
-  function getRequest(string $url, array $params, string $responseType )
+  function getRequest(string $url, array $params, string $responseType)
   {
     $this->curl = new Curl();
     $this->curl->setPublicSslKeys($this->publicSslKeys);
-    $this->setNetworkInterface( $params );
-    $this->curl->curlGet( $url, $params );
-    $this->curl->setCurlParam( CURLOPT_HTTPHEADER, array('User-Agent: smart-id-php-client/'.Client::VERSION.' (PHP/'.phpversion().')') );
-    return $this->request( $url, $responseType );
+    $this->setNetworkInterface($params);
+    $this->curl->curlGet($url, $params);
+    $this->curl->setCurlParam(CURLOPT_HTTPHEADER, array('User-Agent: smart-id-php-client/' . Client::VERSION . ' (PHP/' . phpversion() . ')'));
+    return $this->request($url, $responseType);
   }
 
   /**
@@ -186,30 +277,27 @@ class SmartIdRestConnector implements SmartIdConnector
    * @throws NotFoundException
    * @throws SmartIdException
    */
-  private function request(string $url, string $responseType )
+  private function request(string $url, string $responseType)
   {
     $rawResponse = $this->curl->fetch();
 
-    if ( false !== ( $error = $this->curl->getError() ) )
-    {
-      throw new SmartIdException( $error );
+    if (false !== ($error = $this->curl->getError())) {
+      throw new SmartIdException($error);
     }
 
-    $httpCode = $this->curl->getCurlInfo( CURLINFO_HTTP_CODE );
+    $httpCode = $this->curl->getCurlInfo(CURLINFO_HTTP_CODE);
 
     $this->curl->closeRequest();
 
-    if ( array_key_exists( $httpCode, self::RESPONSE_ERROR_CODES ) )
-    {
-      throw new SmartIdException( self::RESPONSE_ERROR_CODES[ $httpCode ], $httpCode );
+    if (array_key_exists($httpCode, self::RESPONSE_ERROR_CODES)) {
+      throw new SmartIdException(self::RESPONSE_ERROR_CODES[$httpCode], $httpCode);
     }
 
-    if ( 404 == $httpCode )
-    {
-      throw new NotFoundException( 'User account not found for URI ' . $url );
+    if (404 == $httpCode) {
+      throw new NotFoundException('User account not found for URI ' . $url);
     }
 
-    return $this->getResponse( $rawResponse, $responseType );
+    return $this->getResponse($rawResponse, $responseType);
   }
 
   /**
@@ -217,28 +305,26 @@ class SmartIdRestConnector implements SmartIdConnector
    * @param string $responseType
    * @return mixed
    */
-  private function getResponse(string $rawResponse, string $responseType )
+  private function getResponse(string $rawResponse, string $responseType)
   {
-    $preparedResponse = json_decode( $rawResponse, true );
+    $preparedResponse = json_decode($rawResponse, true);
 
-    return new $responseType( $preparedResponse );
+    return new $responseType($preparedResponse);
   }
 
   /**
    * @param array $params
    */
-  private function setNetworkInterface( array &$params )
+  private function setNetworkInterface(array &$params)
   {
-    if ( isset( $params[ 'networkInterface' ] ) )
-    {
-      $this->curl->setCurlParam( CURLOPT_INTERFACE, $params[ 'networkInterface' ] );
-      unset( $params[ 'networkInterface' ] );
+    if (isset($params['networkInterface'])) {
+      $this->curl->setCurlParam(CURLOPT_INTERFACE, $params['networkInterface']);
+      unset($params['networkInterface']);
     }
   }
 
   public function setPublicSslKeys(?string $sslKeys)
   {
-      $this->publicSslKeys = $sslKeys;
+    $this->publicSslKeys = $sslKeys;
   }
-
 }

@@ -29,7 +29,7 @@ namespace Sk\SmartId\Api\Data;
 
 use Sk\SmartId\Exception\TechnicalErrorException;
 
-class SmartIdAuthenticationResponse extends PropertyMapper
+class SmartIdSignatureResponse extends PropertyMapper
 {
   /**
    * @var string
@@ -72,11 +72,6 @@ class SmartIdAuthenticationResponse extends PropertyMapper
   private $state;
 
   /**
-   * @var array
-   */
-  private $ignoredProperties;
-
-  /**
    * @var string
    */
   private $interactionFlowUsed;
@@ -98,7 +93,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string $endResult
    * @return $this
    */
-  public function setEndResult(string $endResult): SmartIdAuthenticationResponse
+  public function setEndResult(string $endResult): self
   {
     $this->endResult = $endResult;
     return $this;
@@ -116,7 +111,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string $signedData
    * @return $this
    */
-  public function setSignedData(string $signedData): SmartIdAuthenticationResponse
+  public function setSignedData(string $signedData): self
   {
     $this->signedData = $signedData;
     return $this;
@@ -134,7 +129,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string|null $valueInBase64
    * @return $this
    */
-  public function setValueInBase64(?string $valueInBase64): SmartIdAuthenticationResponse
+  public function setValueInBase64(?string $valueInBase64): self
   {
     $this->valueInBase64 = $valueInBase64;
     return $this;
@@ -152,7 +147,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string|null $algorithmName
    * @return $this
    */
-  public function setAlgorithmName(?string $algorithmName): SmartIdAuthenticationResponse
+  public function setAlgorithmName(?string $algorithmName): self
   {
     $this->algorithmName = $algorithmName;
     return $this;
@@ -187,7 +182,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string|null $certificate
    * @return $this
    */
-  public function setCertificate(?string $certificate): SmartIdAuthenticationResponse
+  public function setCertificate(?string $certificate): self
   {
     $this->certificate = $certificate;
     return $this;
@@ -205,7 +200,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string|null $certificateLevel
    * @return $this
    */
-  public function setCertificateLevel(?string $certificateLevel): SmartIdAuthenticationResponse
+  public function setCertificateLevel(?string $certificateLevel): self
   {
     $this->certificateLevel = $certificateLevel;
     return $this;
@@ -223,7 +218,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string|null $requestedCertificateLevel
    * @return $this
    */
-  public function setRequestedCertificateLevel(?string $requestedCertificateLevel): SmartIdAuthenticationResponse
+  public function setRequestedCertificateLevel(?string $requestedCertificateLevel): self
   {
     $this->requestedCertificateLevel = $requestedCertificateLevel;
     return $this;
@@ -246,7 +241,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string $state
    * @return $this
    */
-  public function setState(string $state): SmartIdAuthenticationResponse
+  public function setState(string $state): self
   {
     $this->state = $state;
     return $this;
@@ -264,7 +259,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param array|null $ignoredProperties
    * @return SmartIdAuthenticationResponse
    */
-  public function setIgnoredProperties(?array $ignoredProperties): SmartIdAuthenticationResponse
+  public function setIgnoredProperties(?array $ignoredProperties): self
   {
     $this->ignoredProperties = $ignoredProperties;
     return $this;
@@ -282,7 +277,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
    * @param string|null $interactionFlowUsed
    * @return SmartIdAuthenticationResponse
    */
-  public function setInteractionFlowUsed(?string $interactionFlowUsed): SmartIdAuthenticationResponse
+  public function setInteractionFlowUsed(?string $interactionFlowUsed): self
   {
     $this->interactionFlowUsed = $interactionFlowUsed;
     return $this;
@@ -296,7 +291,7 @@ class SmartIdAuthenticationResponse extends PropertyMapper
     return strcasecmp(SessionStatusCode::RUNNING, $this->state) == 0;
   }
 
-  public function setDocumentNumber(?string $documentNumber): SmartIdAuthenticationResponse
+  public function setDocumentNumber(?string $documentNumber): self
   {
     $this->documentNumber = $documentNumber;
     return $this;

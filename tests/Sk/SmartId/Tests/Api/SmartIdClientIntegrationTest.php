@@ -24,6 +24,7 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId\Tests\Api;
 
 use Sk\SmartId\Api\AuthenticationResponseValidator;
@@ -42,7 +43,7 @@ class SmartIdClientIntegrationTest extends Setup
    */
   public function waitForMobileAppToFinish()
   {
-    sleep( 10 );
+    sleep(10);
   }
 
   /**
@@ -51,23 +52,25 @@ class SmartIdClientIntegrationTest extends Setup
   public function authenticate_withDocumentNumber()
   {
     $authenticationHash = AuthenticationHash::generate();
-    $this->assertNotEmpty( $authenticationHash->calculateVerificationCode() );
+    $this->assertNotEmpty($authenticationHash->calculateVerificationCode());
 
     $authenticationResponse = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withDocumentNumber( DummyData::VALID_DOCUMENT_NUMBER )
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-            Interaction::ofTypeDisplayTextAndPIN("Hellou!")))
-        ->withAuthenticationHash( $authenticationHash )
-        ->authenticate();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withDocumentNumber(DummyData::VALID_DOCUMENT_NUMBER)
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("Hellou!")
+      ))
+      ->withAuthenticationHash($authenticationHash)
+      ->authenticate();
 
-    $this->assertAuthenticationResponseCreated( $authenticationResponse, $authenticationHash->getDataToSign() );
+    $this->assertAuthenticationResponseCreated($authenticationResponse, $authenticationHash->getDataToSign());
 
-    $authenticationResponseValidator = new AuthenticationResponseValidator( self::RESOURCES );
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
-    $this->assertAuthenticationResultValid( $authenticationResult );
+    $authenticationResponseValidator = new AuthenticationResponseValidator(self::RESOURCES);
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
+    $this->assertAuthenticationResultValid($authenticationResult);
   }
 
   /**
@@ -75,20 +78,22 @@ class SmartIdClientIntegrationTest extends Setup
    */
   public function authenticate_successfulAuthentication_interactionFlowUsedIncludedInTheResponse()
   {
-      $authenticationHash = AuthenticationHash::generate();
-      $this->assertNotEmpty( $authenticationHash->calculateVerificationCode() );
+    $authenticationHash = AuthenticationHash::generate();
+    $this->assertNotEmpty($authenticationHash->calculateVerificationCode());
 
-      $authenticationResponse = $this->client->authentication()
-          ->createAuthentication()
-          ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-          ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-          ->withDocumentNumber( DummyData::VALID_DOCUMENT_NUMBER )
-          ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-              Interaction::ofTypeDisplayTextAndPIN("Hellou!")))
-          ->withAuthenticationHash( $authenticationHash )
-          ->authenticate();
+    $authenticationResponse = $this->client->authentication()
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withDocumentNumber(DummyData::VALID_DOCUMENT_NUMBER)
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("Hellou!")
+      ))
+      ->withAuthenticationHash($authenticationHash)
+      ->authenticate();
 
-      $this->assertNotNull($authenticationResponse->getInteractionFlowUsed());
+    $this->assertNotNull($authenticationResponse->getInteractionFlowUsed());
   }
 
   /**
@@ -97,23 +102,25 @@ class SmartIdClientIntegrationTest extends Setup
   public function authenticate_withSemanticsIdentifier()
   {
     $authenticationHash = AuthenticationHash::generate();
-    $this->assertNotEmpty( $authenticationHash->calculateVerificationCode() );
+    $this->assertNotEmpty($authenticationHash->calculateVerificationCode());
 
     $authenticationResponse = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withSemanticsIdentifier(SemanticsIdentifier::fromString(DummyData::VALID_SEMANTICS_IDENTIFIER))
-        ->withAuthenticationHash( $authenticationHash )
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-            Interaction::ofTypeDisplayTextAndPIN("Hello")))
-        ->authenticate();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withSemanticsIdentifier(SemanticsIdentifier::fromString(DummyData::VALID_SEMANTICS_IDENTIFIER))
+      ->withAuthenticationHash($authenticationHash)
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("Hello")
+      ))
+      ->authenticate();
 
-    $this->assertAuthenticationResponseCreated( $authenticationResponse, $authenticationHash->getDataToSign() );
+    $this->assertAuthenticationResponseCreated($authenticationResponse, $authenticationHash->getDataToSign());
 
-    $authenticationResponseValidator = new AuthenticationResponseValidator( self::RESOURCES );
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
-    $this->assertAuthenticationResultValid( $authenticationResult );
+    $authenticationResponseValidator = new AuthenticationResponseValidator(self::RESOURCES);
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
+    $this->assertAuthenticationResultValid($authenticationResult);
   }
 
   /**
@@ -122,18 +129,18 @@ class SmartIdClientIntegrationTest extends Setup
   public function startAuthenticationAndReturnSessionId_withSemanticsIdentifier()
   {
     $authenticationHash = AuthenticationHash::generate();
-    $this->assertNotEmpty( $authenticationHash->calculateVerificationCode() );
+    $this->assertNotEmpty($authenticationHash->calculateVerificationCode());
 
     $sessionId = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withSemanticsIdentifier(SemanticsIdentifier::fromString(DummyData::VALID_SEMANTICS_IDENTIFIER))
-        ->withAuthenticationHash( $authenticationHash )
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message")))
-        ->startAuthenticationAndReturnSessionId();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withSemanticsIdentifier(SemanticsIdentifier::fromString(DummyData::VALID_SEMANTICS_IDENTIFIER))
+      ->withAuthenticationHash($authenticationHash)
+      ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message")))
+      ->startAuthenticationAndReturnSessionId();
 
-    $this->assertNotEmpty( $sessionId );
+    $this->assertNotEmpty($sessionId);
   }
 
   /**
@@ -142,31 +149,33 @@ class SmartIdClientIntegrationTest extends Setup
   public function getAuthenticationResponse_withSessionId_isRunning()
   {
     $authenticationHash = AuthenticationHash::generate();
-    $this->assertNotEmpty( $authenticationHash->calculateVerificationCode() );
+    $this->assertNotEmpty($authenticationHash->calculateVerificationCode());
 
     $sessionId = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withSemanticsIdentifier(SemanticsIdentifier::fromString("PNOEE-30303039816"))
-        ->withAuthenticationHash( $authenticationHash )
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-            Interaction::ofTypeDisplayTextAndPIN("Hello")))
-        ->startAuthenticationAndReturnSessionId();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withSemanticsIdentifier(SemanticsIdentifier::fromString("PNOEE-30303039816"))
+      ->withAuthenticationHash($authenticationHash)
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("Hello")
+      ))
+      ->startAuthenticationAndReturnSessionId();
 
-    $this->assertNotEmpty( $sessionId );
+    $this->assertNotEmpty($sessionId);
 
     $authenticationResponse = $this->client->authentication()
-        ->setSessionStatusResponseSocketTimeoutMs( 1000 )
-        ->createSessionStatusFetcher()
-        ->withSessionId( $sessionId )
-        ->withAuthenticationHash( $authenticationHash )
-        ->getAuthenticationResponse();
+      ->setSessionStatusResponseSocketTimeoutMs(1000)
+      ->createSessionStatusFetcher()
+      ->withSessionId($sessionId)
+      ->withAuthenticationHash($authenticationHash)
+      ->getAuthenticationResponse();
 
     echo $authenticationResponse->getEndResult();
 
-    $this->assertNotNull( $authenticationResponse );
-    $this->assertTrue( $authenticationResponse->isRunningState() );
+    $this->assertNotNull($authenticationResponse);
+    $this->assertTrue($authenticationResponse->isRunningState());
   }
 
   /**
@@ -175,49 +184,49 @@ class SmartIdClientIntegrationTest extends Setup
   public function getAuthenticationResponse_withSessionId_isComplete()
   {
     $authenticationHash = AuthenticationHash::generate();
-    $this->assertNotEmpty( $authenticationHash->calculateVerificationCode() );
+    $this->assertNotEmpty($authenticationHash->calculateVerificationCode());
 
     $sessionId = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withSemanticsIdentifier(SemanticsIdentifier::fromString(DummyData::VALID_SEMANTICS_IDENTIFIER))
-        ->withAuthenticationHash( $authenticationHash )
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-            Interaction::ofTypeDisplayTextAndPIN("hello")))
-        ->startAuthenticationAndReturnSessionId();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withSemanticsIdentifier(SemanticsIdentifier::fromString(DummyData::VALID_SEMANTICS_IDENTIFIER))
+      ->withAuthenticationHash($authenticationHash)
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("hello")
+      ))
+      ->startAuthenticationAndReturnSessionId();
 
-    $this->assertNotEmpty( $sessionId );
+    $this->assertNotEmpty($sessionId);
 
     // Polling logic exposed
     $authenticationResponse = null;
 
-    for ( $i = 0; $i <= 10; $i++ )
-    {
+    for ($i = 0; $i <= 10; $i++) {
       $authenticationResponse = $this->client->authentication()
-          ->createSessionStatusFetcher()
-          ->withSessionId( $sessionId )
-          ->withAuthenticationHash( $authenticationHash )
-          ->withSessionStatusResponseSocketTimeoutMs( 10000 )
-          ->getAuthenticationResponse();
+        ->createSessionStatusFetcher()
+        ->withSessionId($sessionId)
+        ->withAuthenticationHash($authenticationHash)
+        ->withSessionStatusResponseSocketTimeoutMs(10000)
+        ->getAuthenticationResponse();
 
-      $this->assertNotNull( $authenticationResponse );
+      $this->assertNotNull($authenticationResponse);
 
-      if ( !$authenticationResponse->isRunningState() )
-      {
+      if (!$authenticationResponse->isRunningState()) {
         break;
       }
-      sleep( 5 );
+      sleep(5);
     }
 
-    $this->assertNotNull( $authenticationResponse );
-    $this->assertFalse( $authenticationResponse->isRunningState() );
+    $this->assertNotNull($authenticationResponse);
+    $this->assertFalse($authenticationResponse->isRunningState());
 
-    $this->assertAuthenticationResponseCreated( $authenticationResponse, $authenticationHash->getDataToSign() );
+    $this->assertAuthenticationResponseCreated($authenticationResponse, $authenticationHash->getDataToSign());
 
-    $authenticationResponseValidator = new AuthenticationResponseValidator( self::RESOURCES );
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
-    $this->assertAuthenticationResultValid( $authenticationResult );
+    $authenticationResponseValidator = new AuthenticationResponseValidator(self::RESOURCES);
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
+    $this->assertAuthenticationResultValid($authenticationResult);
   }
 
   /**
@@ -228,24 +237,26 @@ class SmartIdClientIntegrationTest extends Setup
     $this->markTestSkipped('Works locally but not in Travis-CI. Set correct value to DummyData::NETWORK_INTERFACE');
 
     $authenticationHash = AuthenticationHash::generate();
-    $this->assertNotEmpty( $authenticationHash->calculateVerificationCode() );
+    $this->assertNotEmpty($authenticationHash->calculateVerificationCode());
 
     $authenticationResponse = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withNetworkInterface( DummyData::NETWORK_INTERFACE ) // network interface or available IP
-        ->withDocumentNumber( DummyData::VALID_DOCUMENT_NUMBER )
-        ->withAuthenticationHash( $authenticationHash )
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-            Interaction::ofTypeDisplayTextAndPIN("Hellou")))
-        ->authenticate();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withNetworkInterface(DummyData::NETWORK_INTERFACE) // network interface or available IP
+      ->withDocumentNumber(DummyData::VALID_DOCUMENT_NUMBER)
+      ->withAuthenticationHash($authenticationHash)
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("Hellou")
+      ))
+      ->authenticate();
 
-    $this->assertAuthenticationResponseCreated( $authenticationResponse, $authenticationHash->getDataToSign() );
+    $this->assertAuthenticationResponseCreated($authenticationResponse, $authenticationHash->getDataToSign());
 
-    $authenticationResponseValidator = new AuthenticationResponseValidator( self::RESOURCES );
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
-    $this->assertAuthenticationResultValid( $authenticationResult );
+    $authenticationResponseValidator = new AuthenticationResponseValidator(self::RESOURCES);
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
+    $this->assertAuthenticationResultValid($authenticationResult);
   }
 
   /**
@@ -256,31 +267,33 @@ class SmartIdClientIntegrationTest extends Setup
     $this->markTestSkipped('Works locally but not in Travis-CI. Set correct value to DummyData::NETWORK_INTERFACE');
 
     $authenticationHash = AuthenticationHash::generate();
-    $this->assertNotEmpty( $authenticationHash->calculateVerificationCode() );
+    $this->assertNotEmpty($authenticationHash->calculateVerificationCode());
 
     $sessionId = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withSemanticsIdentifierAsString("PNOEE-30303039903")
-        ->withNetworkInterface( DummyData::NETWORK_INTERFACE ) // or available IP
-        ->withAuthenticationHash( $authenticationHash )
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-            Interaction::ofTypeDisplayTextAndPIN("Hello human")))
-        ->startAuthenticationAndReturnSessionId();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withSemanticsIdentifierAsString("PNOEE-30303039903")
+      ->withNetworkInterface(DummyData::NETWORK_INTERFACE) // or available IP
+      ->withAuthenticationHash($authenticationHash)
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("Hello human")
+      ))
+      ->startAuthenticationAndReturnSessionId();
 
-    $this->assertNotEmpty( $sessionId );
+    $this->assertNotEmpty($sessionId);
 
     $authenticationResponse = $this->client->authentication()
-        ->setSessionStatusResponseSocketTimeoutMs( 1000 )
-        ->createSessionStatusFetcher()
-        ->withNetworkInterface( DummyData::NETWORK_INTERFACE ) // or available IP
-        ->withSessionId( $sessionId )
-        ->withAuthenticationHash( $authenticationHash )
-        ->getAuthenticationResponse();
+      ->setSessionStatusResponseSocketTimeoutMs(1000)
+      ->createSessionStatusFetcher()
+      ->withNetworkInterface(DummyData::NETWORK_INTERFACE) // or available IP
+      ->withSessionId($sessionId)
+      ->withAuthenticationHash($authenticationHash)
+      ->getAuthenticationResponse();
 
-    $this->assertNotNull( $authenticationResponse );
-    $this->assertTrue( $authenticationResponse->isRunningState() );
+    $this->assertNotNull($authenticationResponse);
+    $this->assertTrue($authenticationResponse->isRunningState());
   }
 
   /**
@@ -292,24 +305,26 @@ class SmartIdClientIntegrationTest extends Setup
     $authenticationHash = AuthenticationHash::generate();
 
     $authenticationResponse = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withDocumentNumber( "PNOEE-30303039914-MOCK-Q" )
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-            Interaction::ofTypeDisplayTextAndPIN("Hellou!")))
-        ->withAuthenticationHash( $authenticationHash )
-        ->authenticate();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withDocumentNumber("PNOEE-30303039914-MOCK-Q")
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("Hellou!")
+      ))
+      ->withAuthenticationHash($authenticationHash)
+      ->authenticate();
 
-    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../../resources';
+    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../../resources/trusted_certificates';
 
     $authenticationResponseValidator = new AuthenticationResponseValidator($pathToFolderWithTrustedCertificates);
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
 
     $authenticationIdentity = $authenticationResult->getAuthenticationIdentity();
     self::assertTrue($authenticationResult->isValid());
-    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName() );
-    self::assertEquals('PNOEE-30303039914-MOCK-Q', $authenticationResponse->getDocumentNumber() );
+    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName());
+    self::assertEquals('PNOEE-30303039914-MOCK-Q', $authenticationResponse->getDocumentNumber());
   }
 
   /**
@@ -321,24 +336,26 @@ class SmartIdClientIntegrationTest extends Setup
     $authenticationHash = AuthenticationHash::generate();
 
     $authenticationResponse = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withDocumentNumber( "PNOEE-40504040001-MOCK-Q" )
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-            Interaction::ofTypeDisplayTextAndPIN("Hellou!")))
-        ->withAuthenticationHash( $authenticationHash )
-        ->authenticate();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withDocumentNumber("PNOEE-40504040001-MOCK-Q")
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("Hellou!")
+      ))
+      ->withAuthenticationHash($authenticationHash)
+      ->authenticate();
 
-    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../../resources';
+    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../../resources/trusted_certificates';
 
     $authenticationResponseValidator = new AuthenticationResponseValidator($pathToFolderWithTrustedCertificates);
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
 
     $authenticationIdentity = $authenticationResult->getAuthenticationIdentity();
     self::assertTrue($authenticationResult->isValid());
-    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName() );
-    self::assertEquals('PNOEE-40504040001-MOCK-Q', $authenticationResponse->getDocumentNumber() );
+    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName());
+    self::assertEquals('PNOEE-40504040001-MOCK-Q', $authenticationResponse->getDocumentNumber());
   }
 
   /**
@@ -349,66 +366,69 @@ class SmartIdClientIntegrationTest extends Setup
 
     $authenticationHash = AuthenticationHash::generate();
     $semanticsIdentifier = SemanticsIdentifier::builder()
-        ->withSemanticsIdentifierType('PNO')
-        ->withCountryCode('BE')
-        ->withIdentifier('05040400032')
-        ->build();
+      ->withSemanticsIdentifierType('PNO')
+      ->withCountryCode('BE')
+      ->withIdentifier('05040400032')
+      ->build();
 
     $authenticationResponse = $this->client->authentication()
-        ->createAuthentication()
-        ->withRelyingPartyUUID( DummyData::DEMO_RELYING_PARTY_UUID )
-        ->withRelyingPartyName( DummyData::DEMO_RELYING_PARTY_NAME )
-        ->withSemanticsIdentifier($semanticsIdentifier)
-        ->withAllowedInteractionsOrder(array(Interaction::ofTypeConfirmationMessage("Message"),
-            Interaction::ofTypeDisplayTextAndPIN("Hellou!")))
-        ->withAuthenticationHash( $authenticationHash )
-        ->authenticate();
+      ->createAuthentication()
+      ->withRelyingPartyUUID(DummyData::DEMO_RELYING_PARTY_UUID)
+      ->withRelyingPartyName(DummyData::DEMO_RELYING_PARTY_NAME)
+      ->withSemanticsIdentifier($semanticsIdentifier)
+      ->withAllowedInteractionsOrder(array(
+        Interaction::ofTypeConfirmationMessage("Message"),
+        Interaction::ofTypeDisplayTextAndPIN("Hellou!")
+      ))
+      ->withAuthenticationHash($authenticationHash)
+      ->authenticate();
 
-    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../../resources';
+    $pathToFolderWithTrustedCertificates = __DIR__ . '/../../../../resources/trusted_certificates';
 
     $authenticationResponseValidator = new AuthenticationResponseValidator($pathToFolderWithTrustedCertificates);
-    $authenticationResult = $authenticationResponseValidator->validate( $authenticationResponse );
+    $authenticationResult = $authenticationResponseValidator->validate($authenticationResponse);
 
     $authenticationIdentity = $authenticationResult->getAuthenticationIdentity();
     self::assertTrue($authenticationResult->isValid());
-    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName() );
-    self::assertEquals('PNOBE-05040400032-MOCK-Q', $authenticationResponse->getDocumentNumber() );
+    self::assertEquals('TESTNUMBER', $authenticationIdentity->getSurName());
+    self::assertEquals('PNOBE-05040400032-MOCK-Q', $authenticationResponse->getDocumentNumber());
   }
 
   /**
    * @param SmartIdAuthenticationResponse $authenticationResponse
    * @param string $dataToSign
    */
-  private function assertAuthenticationResponseCreated(SmartIdAuthenticationResponse $authenticationResponse,
-                                                       string $dataToSign )
-  {
-    $this->assertNotNull( $authenticationResponse );
-    $this->assertNotEmpty( $authenticationResponse->getEndResult() );
-    $this->assertEquals( $dataToSign, $authenticationResponse->getSignedData() );
-    $this->assertNotEmpty( $authenticationResponse->getValueInBase64() );
-    $this->assertNotNull( $authenticationResponse->getCertificate() );
-    $this->assertNotNull( $authenticationResponse->getCertificateInstance() );
-    $this->assertNotNull( $authenticationResponse->getCertificateLevel() );
+  private function assertAuthenticationResponseCreated(
+    SmartIdAuthenticationResponse $authenticationResponse,
+    string $dataToSign
+  ) {
+    $this->assertNotNull($authenticationResponse);
+    $this->assertNotEmpty($authenticationResponse->getEndResult());
+    $this->assertEquals($dataToSign, $authenticationResponse->getSignedData());
+    $this->assertNotEmpty($authenticationResponse->getValueInBase64());
+    $this->assertNotNull($authenticationResponse->getCertificate());
+    $this->assertNotNull($authenticationResponse->getCertificateInstance());
+    $this->assertNotNull($authenticationResponse->getCertificateLevel());
   }
 
   /**
    * @param SmartIdAuthenticationResult $authenticationResult
    */
-  private function assertAuthenticationResultValid( SmartIdAuthenticationResult $authenticationResult )
+  private function assertAuthenticationResultValid(SmartIdAuthenticationResult $authenticationResult)
   {
-    $this->assertTrue( $authenticationResult->isValid() );
-    $this->assertTrue( empty( $authenticationResult->getErrors() ) );
-    $this->assertAuthenticationIdentityValid( $authenticationResult->getAuthenticationIdentity() );
+    $this->assertTrue($authenticationResult->isValid());
+    $this->assertTrue(empty($authenticationResult->getErrors()));
+    $this->assertAuthenticationIdentityValid($authenticationResult->getAuthenticationIdentity());
   }
 
   /**
    * @param AuthenticationIdentity $authenticationIdentity
    */
-  private function assertAuthenticationIdentityValid( AuthenticationIdentity $authenticationIdentity )
+  private function assertAuthenticationIdentityValid(AuthenticationIdentity $authenticationIdentity)
   {
-    $this->assertNotEmpty( $authenticationIdentity->getGivenName() );
-    $this->assertNotEmpty( $authenticationIdentity->getSurName() );
-    $this->assertNotEmpty( $authenticationIdentity->getIdentityCode() );
-    $this->assertNotEmpty( $authenticationIdentity->getCountry() );
+    $this->assertNotEmpty($authenticationIdentity->getGivenName());
+    $this->assertNotEmpty($authenticationIdentity->getSurName());
+    $this->assertNotEmpty($authenticationIdentity->getIdentityCode());
+    $this->assertNotEmpty($authenticationIdentity->getCountry());
   }
 }

@@ -27,17 +27,16 @@
 
 namespace Sk\SmartId\Api;
 
-use Sk\SmartId\Api\Data\AuthenticationHash;
 use Sk\SmartId\Api\Data\SessionRequest;
 use Sk\SmartId\Api\Data\SessionResponse;
 use Sk\SmartId\Api\Data\SemanticsIdentifier;
 use Sk\SmartId\Api\Data\SessionStatus;
 use Sk\SmartId\Api\Data\SignableData;
-use Sk\SmartId\Api\Data\SmartIdAuthenticationResponse;
+use Sk\SmartId\Api\Data\SmartIdSignatureResponse;
 use Sk\SmartId\Exception\InvalidParametersException;
 use Sk\SmartId\Exception\TechnicalErrorException;
 
-class AuthenticationRequestBuilder extends SmartIdRequestBuilder
+class SignatureRequestBuilder extends SmartIdRequestBuilder
 {
 
   /**
@@ -61,14 +60,9 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
   private $dataToSign;
 
   /**
-   * @var AuthenticationHash
-   */
-  private $authenticationHash;
-
-  /**
    * @var array
    */
-  private $allowedInteractionsOrder;
+  private $allowedInteractionsOrder = [];
 
   /**
    * @var string
@@ -88,7 +82,7 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    * @param string $documentNumber
    * @return $this
    */
-  public function withDocumentNumber(string $documentNumber): AuthenticationRequestBuilder
+  public function withDocumentNumber(string $documentNumber): self
   {
     $this->documentNumber = $documentNumber;
     return $this;
@@ -96,9 +90,9 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
 
   /**
    * @param SemanticsIdentifier $semanticsIdentifier
-   * @return AuthenticationRequestBuilder
+   * @return $this
    */
-  public function withSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier): SmartIdRequestBuilder
+  public function withSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier): self
   {
     $this->semanticsIdentifier = $semanticsIdentifier;
     return $this;
@@ -106,9 +100,9 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
 
   /**
    * @param string $semanticsIdentifierAsString
-   * @return AuthenticationRequestBuilder
+   * @return $this
    */
-  public function withSemanticsIdentifierAsString(string $semanticsIdentifierAsString): AuthenticationRequestBuilder
+  public function withSemanticsIdentifierAsString(string $semanticsIdentifierAsString): self
   {
     $this->semanticsIdentifier = SemanticsIdentifier::fromString($semanticsIdentifierAsString);
     return $this;
@@ -118,19 +112,9 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    * @param SignableData $dataToSign
    * @return $this
    */
-  public function withSignableData(SignableData $dataToSign): AuthenticationRequestBuilder
+  public function withSignableData(SignableData $dataToSign): self
   {
     $this->dataToSign = $dataToSign;
-    return $this;
-  }
-
-  /**
-   * @param AuthenticationHash $authenticationHash
-   * @return $this
-   */
-  public function withAuthenticationHash(AuthenticationHash $authenticationHash): AuthenticationRequestBuilder
-  {
-    $this->authenticationHash = $authenticationHash;
     return $this;
   }
 
@@ -138,13 +122,13 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    * @param string $certificateLevel
    * @return $this
    */
-  public function withCertificateLevel(string $certificateLevel): AuthenticationRequestBuilder
+  public function withCertificateLevel(string $certificateLevel): self
   {
     $this->certificateLevel = $certificateLevel;
     return $this;
   }
 
-  public function withAllowedInteractionsOrder(array $allowedInteractionsOrder): AuthenticationRequestBuilder
+  public function withAllowedInteractionsOrder(array $allowedInteractionsOrder): self
   {
     $this->allowedInteractionsOrder = $allowedInteractionsOrder;
     return $this;
@@ -154,7 +138,7 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    * @param string $nonce
    * @return $this
    */
-  public function withNonce(string $nonce): AuthenticationRequestBuilder
+  public function withNonce(string $nonce): self
   {
     $this->nonce = $nonce;
     return $this;
@@ -164,7 +148,7 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    * @param string $relyingPartyUUID
    * @return $this
    */
-  public function withRelyingPartyUUID(string $relyingPartyUUID): SmartIdRequestBuilder
+  public function withRelyingPartyUUID(string $relyingPartyUUID): self
   {
     parent::withRelyingPartyUUID($relyingPartyUUID);
     return $this;
@@ -174,22 +158,22 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    * @param string $relyingPartyName
    * @return $this
    */
-  public function withRelyingPartyName(string $relyingPartyName): SmartIdRequestBuilder
+  public function withRelyingPartyName(string $relyingPartyName): self
   {
     parent::withRelyingPartyName($relyingPartyName);
     return $this;
   }
 
   /**
-   * @return SmartIdAuthenticationResponse
+   * @return SmartIdSignatureResponse
    */
-  public function authenticate(): SmartIdAuthenticationResponse
+  public function sign(): SmartIdSignatureResponse
   {
-    $response = $this->getAuthenticationResponse();
+    $response = $this->getSignatureResponse();
     $sessionStatus = $this->getSessionStatusPoller()
       ->fetchFinalSessionStatus($response->getSessionID());
     $this->validateSessionStatus($sessionStatus);
-    return $this->createSmartIdAuthenticationResponse($sessionStatus);
+    return $this->createSmartIdSignatureResponse($sessionStatus);
   }
 
   /**
@@ -197,14 +181,14 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    */
   public function startAuthenticationAndReturnSessionId(): string
   {
-    $response = $this->getAuthenticationResponse();
+    $response = $this->getSignatureResponse();
     return $response->getSessionID();
   }
 
   /**
    * @return SessionRequest
    */
-  private function createAuthenticationSessionRequest(): SessionRequest
+  private function createSignatureSessionRequest(): SessionRequest
   {
     $request = new SessionRequest();
     $request->setRelyingPartyUUID($this->getRelyingPartyUUID())
@@ -223,11 +207,6 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    */
   private function getHashTypeString(): string
   {
-    if (isset($this->hashType)) {
-      return $this->hashType;
-    } else if (isset($this->authenticationHash)) {
-      return $this->authenticationHash->getHashType();
-    }
     return $this->dataToSign->getHashType();
   }
 
@@ -236,26 +215,23 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    */
   private function getHashInBase64(): string
   {
-    if (isset($this->authenticationHash)) {
-      return $this->authenticationHash->calculateHashInBase64();
-    }
     return $this->dataToSign->calculateHashInBase64();
   }
 
   /**
    * @return SessionResponse
    */
-  private function getAuthenticationResponse(): SessionResponse
+  private function getSignatureResponse(): SessionResponse
   {
     $this->validateParameters();
-    $request = $this->createAuthenticationSessionRequest();
+    $request = $this->createSignatureSessionRequest();
 
     if (!empty($this->documentNumber)) {
       return $this->getConnector()
-        ->authenticate($this->documentNumber, $request);
+        ->sign($this->documentNumber, $request);
     } else {
       return $this->getConnector()
-        ->authenticateWithSemanticsIdentifier($this->semanticsIdentifier, $request);
+        ->signWithSemanticsIdentifier($this->semanticsIdentifier, $request);
     }
   }
 
@@ -271,13 +247,13 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
 
     $this->validateSemanticsIdentifierIfSet();
 
-    if (!$this->isSignableDataSet() && !$this->isAuthenticationHashSet()) {
-      throw new InvalidParametersException('Signable data or hash with hash type must be set');
+    if (!$this->isSignableDataSet()) {
+      throw new InvalidParametersException('Signable data must be set');
     }
+
     if (!isset($this->allowedInteractionsOrder) or sizeof($this->allowedInteractionsOrder) == 0) {
       throw new InvalidParametersException('The interaction options need to be specified');
     }
-
     $this->verifyInteractionsIfSet();
   }
 
@@ -287,14 +263,6 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
   private function isSignableDataSet(): bool
   {
     return isset($this->dataToSign);
-  }
-
-  /**
-   * @return bool
-   */
-  private function isAuthenticationHashSet(): bool
-  {
-    return isset($this->authenticationHash);
   }
 
   /**
@@ -313,16 +281,17 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
 
   /**
    * @param SessionStatus $sessionStatus
-   * @return SmartIdAuthenticationResponse
+   * @return SmartIdSignatureResponse
    */
-  private function createSmartIdAuthenticationResponse(SessionStatus $sessionStatus): SmartIdAuthenticationResponse
+  private function createSmartIdSignatureResponse(SessionStatus $sessionStatus): SmartIdSignatureResponse
   {
     $sessionResult = $sessionStatus->getResult();
     $sessionSignature = $sessionStatus->getSignature();
     $sessionCertificate = $sessionStatus->getCert();
 
-    $authenticationResponse = new SmartIdAuthenticationResponse();
-    $authenticationResponse->setEndResult($sessionResult->getEndResult())
+    $response = new SmartIdSignatureResponse();
+    $response->setEndResult($sessionResult->getEndResult())
+      ->setState($sessionStatus->getState())
       ->setSignedData($this->getDataToSign())
       ->setIgnoredProperties($sessionStatus->getIgnoredProperties())
       ->setInteractionFlowUsed($sessionStatus->getInteractionFlowUsed())
@@ -331,7 +300,7 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
       ->setCertificate($sessionCertificate->getValue())
       ->setCertificateLevel($sessionCertificate->getCertificateLevel())
       ->setDocumentNumber($sessionResult->getDocumentNumber());
-    return $authenticationResponse;
+    return $response;
   }
 
   /**
@@ -339,9 +308,6 @@ class AuthenticationRequestBuilder extends SmartIdRequestBuilder
    */
   private function getDataToSign(): string
   {
-    if (isset($this->authenticationHash)) {
-      return $this->authenticationHash->getDataToSign();
-    }
     return $this->dataToSign->getDataToSign();
   }
 

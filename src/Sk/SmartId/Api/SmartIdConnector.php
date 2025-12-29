@@ -24,10 +24,11 @@
  * THE SOFTWARE.
  * #L%
  */
+
 namespace Sk\SmartId\Api;
 
-use Sk\SmartId\Api\Data\AuthenticationSessionRequest;
-use Sk\SmartId\Api\Data\AuthenticationSessionResponse;
+use Sk\SmartId\Api\Data\SessionRequest;
+use Sk\SmartId\Api\Data\SessionResponse;
 use Sk\SmartId\Api\Data\SemanticsIdentifier;
 use Sk\SmartId\Api\Data\SessionStatus;
 use Sk\SmartId\Api\Data\SessionStatusRequest;
@@ -37,22 +38,50 @@ interface SmartIdConnector
 {
   /**
    * @param string $documentNumber
-   * @param AuthenticationSessionRequest $request
-   * @return AuthenticationSessionResponse
+   * @param SessionRequest $request
+   * @return SessionResponse
    */
-  function authenticate(string $documentNumber, AuthenticationSessionRequest $request ): AuthenticationSessionResponse;
+  function authenticate(string $documentNumber, SessionRequest $request): SessionResponse;
 
   /**
    * @param SemanticsIdentifier $semanticsIdentifier
-   * @param AuthenticationSessionRequest $request
-   * @return AuthenticationSessionResponse
+   * @param SessionRequest $request
+   * @return SessionResponse
    */
-  function authenticateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, AuthenticationSessionRequest $request): AuthenticationSessionResponse;
+  function authenticateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, SessionRequest $request): SessionResponse;
+
+  /**
+   * @param string $documentNumber
+   * @param SessionRequest $request
+   * @return SessionResponse
+   */
+  function chooseCertificate(string $documentNumber, SessionRequest $request): SessionResponse;
+
+  /**
+   * @param SemanticsIdentifier $semanticsIdentifier
+   * @param SessionRequest $request
+   * @return SessionResponse
+   */
+  function chooseCertificateWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, SessionRequest $request): SessionResponse;
+
+  /**
+   * @param SemanticsIdentifier $semanticsIdentifier
+   * @param SessionRequest $request
+   * @return SessionResponse
+   */
+  function sign(string $documentNumber, SessionRequest $request): SessionResponse;
+
+  /**
+   * @param SemanticsIdentifier $semanticsIdentifier
+   * @param SessionRequest $request
+   * @return SessionResponse
+   */
+  function signWithSemanticsIdentifier(SemanticsIdentifier $semanticsIdentifier, SessionRequest $request): SessionResponse;
 
   /**
    * @param SessionStatusRequest $request
    * @throws SessionNotFoundException
    * @return SessionStatus
    */
-  function getSessionStatus( SessionStatusRequest $request ): SessionStatus;
+  function getSessionStatus(SessionStatusRequest $request): SessionStatus;
 }
