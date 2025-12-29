@@ -23,23 +23,30 @@ $semanticsIdentifier = SemanticsIdentifier::builder()
     ->withIdentifier('30303039914')
     ->build();
 
-$resp = $client->signature()->createCertificateChoice()
-    ->withSemanticsIdentifier($semanticsIdentifier)
-    ->withCertificateLevel('QUALIFIED')
-    ->chooseCertificate();
+try {
+    $resp = $client->signature()->createCertificateChoice()
+        ->withSemanticsIdentifier($semanticsIdentifier)
+        ->withCertificateLevel('QUALIFIED')
+        ->chooseCertificate();
+} catch (\Exception $e) { // Use exceptions below
+    throw new RuntimeException("Smart-ID authentication process failed for uncertain reason: " . $e);
+}
 
 $data = new SignableData('12312312312312');
 $data->setHashType('SHA256');
 
-$resp = $client->signature()->createSignature()
-    //->withDocumentNumber($resp->getDocumentNumber())
-    ->withSemanticsIdentifier($semanticsIdentifier)
-    ->withCertificateLevel('QUALIFIED')
-    ->withSignableData($data)
-    ->withAllowedInteractionsOrder([
-        Interaction::ofTypeVerificationCodeChoice('Kood')
-    ])
-    ->sign();
-
+try {
+    $resp = $client->signature()->createSignature()
+        //->withDocumentNumber($resp->getDocumentNumber())
+        ->withSemanticsIdentifier($semanticsIdentifier)
+        ->withCertificateLevel('QUALIFIED')
+        ->withSignableData($data)
+        ->withAllowedInteractionsOrder([
+            Interaction::ofTypeVerificationCodeChoice('Kood')
+        ])
+        ->sign();
+} catch (\Exception $e) { // Use exceptions below
+    throw new RuntimeException("Smart-ID authentication process failed for uncertain reason: " . $e);
+}
 
 var_dump($resp);
