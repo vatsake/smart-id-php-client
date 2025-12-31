@@ -25,8 +25,9 @@ try {
     throw new RuntimeException("Smart-ID authentication process failed for uncertain reason: " . $e);
 }
 
-$data = new SignableData('12312312312312');
+$data = new SignatureHash('12312312312312');
 $data->setHashType('SHA256');
+echo "Verification code: " . $data->calculateVerificationCode();
 
 try {
   $resp = $client->signature()->createSignature()
