@@ -60,8 +60,12 @@ try {
 ## Breaking changes
 
 * AuthenticationResponseValidator now requires FULL path to folder (removed the trusted_certificates suffix)
+
+## Minor changes
+
 * Renamed AuthenticationSessionRequest -> SessionRequest
 * Renamed AuthenticationSessionResponse -> SessionResponse
+
 
 # ORIGINAL DOCUMENTATION
 
